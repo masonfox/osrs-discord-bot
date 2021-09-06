@@ -5,6 +5,9 @@ const { hiscores } = require("osrs-json-api");
 const { titleCase, fetchPlayers } = require("./utilities");
 var FieldValue = require("firebase-admin").firestore.FieldValue;
 
+// modules
+const listPlayers = require("./src/listPlayers")
+
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 });
@@ -221,6 +224,8 @@ client.on("messageCreate", async (msg) => {
     }
   } else if (msg.content === "!osrs" || msg.content === "!osrs help") {
     listCommands(msg);
+  } else if (msg.content === "!osrs list") {
+    listPlayers(msg)
   }
 });
 
