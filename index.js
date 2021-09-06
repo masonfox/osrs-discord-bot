@@ -2,7 +2,7 @@ require("dotenv").config(); //initialize dotenv
 const { Discord, Client, Intents } = require("discord.js"); //import discord.js
 const { db } = require("./firebase");
 const { hiscores } = require("osrs-json-api");
-const { titleCase } = require("./utilities");
+const { titleCase, fetchPlayers } = require("./utilities");
 var FieldValue = require("firebase-admin").firestore.FieldValue;
 
 const client = new Client({
@@ -16,7 +16,7 @@ client.on("ready", async () => {
 
 async function app() {
   // fetch users to track
-  const users = await getUsers();
+  const users = await fetchPlayers();
   // retrieve and format data from OSRS API
   const currentData = await getRSData(users);
   // append any previous data stored for each user
@@ -30,15 +30,6 @@ async function app() {
   } else {
     return [];
   }
-}
-
-/**
- * Retrieves users from the FB store that we're tracking
- * @returns array of users
- */
-async function getUsers() {
-  const snapshot = await db.collection("users").get();
-  return snapshot.docs.map((doc) => doc.data());
 }
 
 /**
