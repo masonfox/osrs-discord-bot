@@ -1,12 +1,12 @@
 require("dotenv").config(); //initialize dotenv
 const { Discord, Client, Intents } = require("discord.js"); //import discord.js
-const { db } = require("./firebase");
+const { db } = require("./src/firebase");
 const { hiscores } = require("osrs-json-api");
-const { titleCase, fetchPlayers } = require("./utilities");
+const { titleCase, fetchPlayers } = require("./src/utilities");
 var FieldValue = require("firebase-admin").firestore.FieldValue;
 
-// modules
-const listPlayers = require("./src/listPlayers")
+// commands
+const { listPlayers } = require("./src/commands")
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
