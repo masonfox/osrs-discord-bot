@@ -53,7 +53,7 @@ exports.skillIcon = function skillIcon(skill) {
     runecraft: "💎",
     slayer: "💀",
     smithing: "♨",
-    strength: "✊",
+    strength: "💪",
     thieving: "💰",
     woodcutting: "🌲",
   }
