@@ -1,0 +1,22 @@
+{
+  "name": "osrs-discord-bot",
+  "version": "1.0.0",
+  "description": "A discord bot to pull OSRS information",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "author": "Mason Fox",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.3",
+    "discord.js": "^13.1.0",
+    "dotenv": "^10.0.0",
+    "firebase": "9.0.1",
+    "firebase-admin": "^9.11.1",
+    "nodemon": "^2.0.12",
+    "osrs-json-api": "^1.4.5",
+    "slash-commands": "^1.5.0"
+  }
+}
