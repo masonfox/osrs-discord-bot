@@ -1,5 +1,5 @@
 const { hiscores } = require("osrs-json-api");
-const { titleCase, fetchPlayers, timestamp } = require("./utilities");
+const { titleCase, fetchPlayers, timestamp, skillIcon } = require("./utilities");
 const { db } = require("./firebase");
 
 /**
@@ -130,10 +130,10 @@ function constructMessage(data) {
       // construct message
       if (level == 99) {
         // TODO: add a celebrate gif?
-        message += `> - **${skill}** is now maxed at 99! Congrats! 🎉\n`;
+        message += `> ${skillIcon(skill)} - **${skill}** is now maxed at 99! Congrats! 🎉\n`;
       } else {
         let levelText = variance > 1 ? "levels" : "level";
-        message += `> - **${skill}** increased ${variance} ${levelText} to ${level}!\n`;
+        message += `> ${skillIcon(skill)} - **${skill}** increased ${variance} ${levelText} to ${level}!\n`;
       }
     });
 

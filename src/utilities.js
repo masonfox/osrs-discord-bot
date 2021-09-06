@@ -30,3 +30,33 @@ exports.fetchPlayers = async function fetchPlayers() {
 exports.timestamp = function timestamp() {
   return FieldValue.serverTimestamp()
 }
+
+exports.skillIcon = function skillIcon(skill) {
+  const icons = {
+    agility: "🏃‍♂️",
+    attack: "⚔",
+    construction: "🔨",
+    cooking: "🍲",
+    crafting: "⚒",
+    defence : "🛡",
+    farming: "🌱",
+    firemaking: "🔥",
+    fishing: "🎣",
+    fletching: "🔪",
+    herblore: "🌿",
+    hitpoints: "♥",
+    hunter: "🐾",
+    magic: "🧙‍♂️",
+    mining: "⛏",
+    prayer: "🙏",
+    ranged: "🏹",
+    runecraft: "💎",
+    slayer: "💀",
+    smithing: "♨",
+    strength: "✊",
+    thieving: "💰",
+    woodcutting: "🌲",
+  }
+
+  return icons[skill.toLowerCase()]
+}
