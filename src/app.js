@@ -129,7 +129,7 @@ function constructMessage(data) {
       let { skill, variance, level } = result;
       // construct message
       if (level == 99) {
-        // add a celebrate gif?
+        // TODO: add a celebrate gif?
         message += `> - **${skill}** is now maxed at 99! Congrats! 🎉\n`;
       } else {
         let levelText = variance > 1 ? "levels" : "level";
