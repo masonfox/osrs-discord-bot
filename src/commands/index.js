@@ -4,3 +4,4 @@
 
 exports.listPlayers = require("./listPlayers")
 exports.listCommands = require("./listCommands")
+exports.addPlayer = require("./addPlayer")
