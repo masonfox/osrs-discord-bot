@@ -5,3 +5,4 @@
 exports.listPlayers = require("./listPlayers")
 exports.listCommands = require("./listCommands")
 exports.addPlayer = require("./addPlayer")
+exports.removePlayer = require("./removePlayer")

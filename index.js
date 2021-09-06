@@ -5,7 +5,7 @@ const app = require("./src/app")
 const { timestamp } = require("./src/utilities")
 
 // commands
-const { start, listPlayers, listCommands, addPlayer } = require("./src/commands")
+const { start, listPlayers, listCommands, addPlayer, removePlayer } = require("./src/commands")
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -77,6 +77,8 @@ client.on("messageCreate", async (msg) => {
     listPlayers(msg)
   } else if (content.includes("!osrs add")) {
     addPlayer(msg)
+  } else if (content.includes("!osrs remove")) {
+    removePlayer(msg)
   }
 });
 
