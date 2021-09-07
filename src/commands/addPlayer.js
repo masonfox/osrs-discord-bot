@@ -1,6 +1,7 @@
 const { hiscores } = require("osrs-json-api");
 const { db } = require("../firebase");
 const { timestamp } = require("../utilities")
+const app = require("../app")
 
 module.exports = async function addPlayer(msg) {
     let { content, author } = msg
@@ -16,9 +17,16 @@ module.exports = async function addPlayer(msg) {
             addedBy: author.username,
             createdAt: timestamp()
         })
-        // TODO: go ahead and trigger the first insertion into the records table
+        // add user to records collection so next pull is a direct comparison
+        insertRecordsTable(name)
         msg.channel.send(`🎉 **${name}** successfully added! I'll begin tracking them!`)
     } catch (error) {
         msg.channel.send(`I wasn't able to find a player named **${name}**`)
     }
+}
+
+async function insertRecordsTable(name) {
+    const user = [{ osrsName: name }]
+    const data = await app.getRSData(user)
+    await app.trackNewPlayer(data[0])
 }
