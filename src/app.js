@@ -141,7 +141,7 @@ const constructMessage = function constructMessage(data) {
     });
 
     // handle additional spacing
-    if ((results.length - 1) !== index) message += "\n";
+    const count = results.length - 1;
 
     final += message;
   });
