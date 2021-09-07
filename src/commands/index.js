@@ -3,6 +3,7 @@
  */
 
 exports.listPlayers = require("./listPlayers")
+exports.session = require("./session")
 exports.listCommands = require("./listCommands")
 exports.addPlayer = require("./addPlayer")
 exports.removePlayer = require("./removePlayer")

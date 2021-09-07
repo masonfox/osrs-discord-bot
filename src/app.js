@@ -1,5 +1,10 @@
 const { hiscores } = require("osrs-json-api");
-const { titleCase, fetchPlayers, timestamp, skillIcon } = require("./utilities");
+const {
+  titleCase,
+  fetchPlayers,
+  timestamp,
+  skillIcon,
+} = require("./utilities");
 const { db } = require("./firebase");
 
 /**
@@ -43,10 +48,7 @@ const getRSData = async function getRSData(users) {
       return final;
     })
   );
-
-
-
-}
+};
 
 const getCurrentState = async function getCurrentState(data) {
   const filtered = [];
@@ -66,7 +68,7 @@ const getCurrentState = async function getCurrentState(data) {
   }
 
   return filtered;
-}
+};
 
 const trackNewPlayer = async function trackNewPlayer(item) {
   await db.collection("records").doc(item.user.osrsName).set({
@@ -74,7 +76,7 @@ const trackNewPlayer = async function trackNewPlayer(item) {
     updatedAt: timestamp(),
     createdAt: timestamp(),
   });
-}
+};
 
 const compareState = async function compareState(data) {
   return Promise.all(
@@ -102,7 +104,7 @@ const compareState = async function compareState(data) {
       return { ...obj, results };
     })
   );
-}
+};
 
 const transitionState = async function transitionState(data) {
   const { current, previous, user } = data;
@@ -120,7 +122,7 @@ const transitionState = async function transitionState(data) {
     skills: previous,
     createdAt: timestamp(),
   });
-}
+};
 
 const constructMessage = function constructMessage(data) {
   let final = "";
@@ -142,11 +144,25 @@ const constructMessage = function constructMessage(data) {
 
     // handle additional spacing
     const count = results.length - 1;
+    if (count !== index) message += "\n";
 
     final += message;
   });
   return final;
-}
+};
+
+const setDBGuild = async function setDBGuild(running, channel, error = {}) {
+  const guild = channel.guild;
+  await db.collection("guilds").doc(guild.id).set({
+    running,
+    error,
+    channelId: channel.id,
+    channelName: channel.name,
+    guildName: guild.name,
+    guildId: guild.id,
+    updatedAt: timestamp(),
+  });
+};
 
 module.exports = {
   main,
@@ -155,5 +171,6 @@ module.exports = {
   trackNewPlayer,
   compareState,
   transitionState,
-  constructMessage
-}
+  constructMessage,
+  setDBGuild,
+};
