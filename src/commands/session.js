@@ -1,7 +1,8 @@
+require('dotenv').config();
 const app = require("../app");
 
 var interval = null;
-const intervalTime = 300000; // 5 minutes
+const intervalTime = (process.env.NODE_ENV == "production") ? 300000 : 10000; // 5 minutes or 10 seconds
 
 const start = async function start(channel, silent = true) {
   try {
