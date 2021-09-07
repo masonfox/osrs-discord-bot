@@ -44,8 +44,9 @@ client.on("messageCreate", async (msg) => {
       msg.channel.send(
         `👋 Thanks for setting me up! I'll watch for changes every 5 min! I'll post here in ${channel.name}! You can stop my anytime by typing \`osrs stop\`! Happy leveling!`
       );
+      // start interval for main app function
       interval = setInterval(async () => {
-        let results = await app();
+        let results = await app.main();
         if (results.length > 0) {
           msg.channel.send(
             `📰 Great news! I have some updates for you:\n\n${results}`

@@ -5,7 +5,7 @@ const { db } = require("./firebase");
 /**
  * Main app function
  */
-module.exports = async function app() {
+const main = async function main() {
   // fetch users to track
   const users = await fetchPlayers();
   // retrieve and format data from OSRS API
@@ -28,7 +28,7 @@ module.exports = async function app() {
  * @param {array} users
  * @returns array of user objects with skill data
  */
-async function getRSData(users) {
+const getRSData = async function getRSData(users) {
   return Promise.all(
     users.map(async (user) => {
       const data = await hiscores.getPlayer(user.osrsName);
@@ -43,9 +43,12 @@ async function getRSData(users) {
       return final;
     })
   );
+
+
+
 }
 
-async function getCurrentState(data) {
+const getCurrentState = async function getCurrentState(data) {
   const filtered = [];
   for (let item of data) {
     let doc = await db.collection("records").doc(item.user.osrsName).get();
@@ -65,7 +68,7 @@ async function getCurrentState(data) {
   return filtered;
 }
 
-async function trackNewPlayer(item) {
+const trackNewPlayer = async function trackNewPlayer(item) {
   await db.collection("records").doc(item.user.osrsName).set({
     skills: item.current,
     updatedAt: timestamp(),
@@ -73,7 +76,7 @@ async function trackNewPlayer(item) {
   });
 }
 
-async function compareState(data) {
+const compareState = async function compareState(data) {
   return Promise.all(
     data.map(async (obj) => {
       let { previous, current } = obj;
@@ -101,7 +104,7 @@ async function compareState(data) {
   );
 }
 
-async function transitionState(data) {
+const transitionState = async function transitionState(data) {
   const { current, previous, user } = data;
   let records = db.collection("records").doc(user.osrsName);
   let history = db.collection("history").doc(user.osrsName);
@@ -119,7 +122,7 @@ async function transitionState(data) {
   });
 }
 
-function constructMessage(data) {
+const constructMessage = function constructMessage(data) {
   let final = "";
   data.forEach((record, index) => {
     const { user, results } = record;
@@ -143,4 +146,14 @@ function constructMessage(data) {
     final += message;
   });
   return final;
+}
+
+module.exports = {
+  main,
+  getRSData,
+  getCurrentState,
+  trackNewPlayer,
+  compareState,
+  transitionState,
+  constructMessage
 }
