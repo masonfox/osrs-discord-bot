@@ -3,7 +3,7 @@ const { Discord, Client, Intents } = require("discord.js");
 const { db } = require("./src/firebase");
 
 // command import
-const { session, listPlayers, listCommands, addPlayer, removePlayer } = require("./src/commands")
+const { session, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -53,6 +53,8 @@ client.on("messageCreate", async (msg) => {
     addPlayer(msg)
   } else if (content.includes("!osrs remove")) {
     removePlayer(msg)
+  } else if (content === "!osrs status") {
+    statusDump(channel)
   }
 });
 
