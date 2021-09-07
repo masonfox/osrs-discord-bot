@@ -1,8 +1,7 @@
 const { db } = require("../firebase")
 
 module.exports = async function removePlayer(msg) {
-    console.log("remove player")
-    let { content, author } = msg
+    let { content } = msg
     let arr = content.split(" ")
     // ensure a name is provided
     if (arr.length !== 3) return msg.channel.send("I think you forgot a name after `remove`!")
