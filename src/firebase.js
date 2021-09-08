@@ -12,7 +12,7 @@ const app = firebase.initializeApp({
     "type": env.CRED_TYPE,
     "project_id": env.CRED_PROJECT_ID,
     "private_key_id": env.CRED_PRIVATE_KEY_ID,
-    "private_key": env.CRED_PRIVATE_KEY,
+    "private_key": env.CRED_PRIVATE_KEY.replace(/\\n/g, '\n'),
     "client_email": env.CRED_CLIENT_EMAIL,
     "client_id": env.CRED_CLIENT_ID,
     "auth_uri": env.CRED_AUTH_URI,
