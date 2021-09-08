@@ -30,6 +30,7 @@ const start = async function start(channel, silent = true) {
 const stop = async function stop(channel) {
   if (interval !== null) {
     clearInterval(interval);
+    interval = null;
     channel.send(
       "Ah, I get it! I won't pester you anymore! If you change your mind, use `OSRS start` to get rolling again!"
     );
