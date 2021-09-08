@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A discord bot to pull OSRS information",
   "main": "index.js",
+  "engines": {
+    "node": "16.6.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js"
