@@ -1,13 +1,7 @@
 require("dotenv").config(); // initialize dotenv
-const { Discord, Client, Intents } = require("discord.js");
 const { db } = require("./src/firebase");
-
-// command import
+const client = require("./src/client")
 const { session, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
-
-const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
-});
 
 /**
  * Ready event handler

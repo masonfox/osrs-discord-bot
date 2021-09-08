@@ -1,5 +1,6 @@
 require('dotenv').config();
 const app = require("../app");
+const client = require("../client")
 
 var interval = null;
 const intervalTime = (process.env.NODE_ENV == "production") ? 300000 : 10000; // 5 minutes or 10 seconds
