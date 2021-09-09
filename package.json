@@ -18,6 +18,7 @@
     "dotenv": "^10.0.0",
     "firebase": "9.0.1",
     "firebase-admin": "^9.11.1",
+    "node-cron": "^3.0.0",
     "nodemon": "^2.0.12",
     "osrs-json-api": "^1.4.5",
     "slash-commands": "^1.5.0"
