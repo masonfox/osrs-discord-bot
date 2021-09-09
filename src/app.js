@@ -151,19 +151,6 @@ const constructMessage = function constructMessage(data) {
   return final;
 };
 
-const setDBGuild = async function setDBGuild(running, channel, error = {}) {
-  const guild = channel.guild;
-  await db.collection("guilds").doc(guild.id).set({
-    running,
-    error,
-    channelId: channel.id,
-    channelName: channel.name,
-    guildName: guild.name,
-    guildId: guild.id,
-    updatedAt: timestamp(),
-  });
-};
-
 module.exports = {
   main,
   getRSData,
@@ -171,6 +158,5 @@ module.exports = {
   trackNewPlayer,
   compareState,
   transitionState,
-  constructMessage,
-  setDBGuild,
+  constructMessage
 };

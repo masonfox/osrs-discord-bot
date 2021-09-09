@@ -1,7 +1,8 @@
 require("dotenv").config(); // initialize dotenv
 const { db } = require("./src/firebase");
 const client = require("./src/client")
-const { session, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
+const { fetchGuilds } = require("./src/utilities")
+const { session, subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
 
 /**
  * Ready event handler
@@ -16,17 +17,19 @@ client.on("ready", async () => {
  * Boots the application
  */
 async function boot() {
-  const guild = client.guilds.cache.first()
-  const doc = await db.collection("guilds").doc(guild.id).get()
-  if (doc.exists && doc.data()?.running) {
-    // boot session automatically in silent mode
-    const data = doc.data()
-    console.log(`Booting to ${data.guildName} / ${data.channelName} channel`)
-    const channel = guild.channels.cache.get(data.channelId)
-    session.start(channel)
-  } else {
-    console.log("New instance! Please run '!osrs here'")
-  }
+  const guilds = await fetchGuilds(true)
+  console.log(`${guilds.length} guilds are subscribed to updates!`)
+  // const guild = client.guilds.cache.first()
+  // const doc = await db.collection("guilds").doc(guild.id).get()
+  // if (doc.exists && doc.data()?.running) {
+  //   // boot session automatically in silent mode
+  //   const data = doc.data()
+  //   console.log(`Booting to ${data.guildName} / ${data.channelName} channel`)
+  //   const channel = guild.channels.cache.get(data.channelId)
+  //   session.start(channel)
+  // } else {
+  //   console.log("New instance! Please run '!osrs here'")
+  // }
 }
 
 /**
@@ -35,10 +38,10 @@ async function boot() {
 client.on("messageCreate", async (msg) => {
   let { channel, content } = msg
 
-  if (content === "!osrs start" || content === "!osrs here") {
-    session.start(channel, false)
-  } else if (content === "!osrs stop") {
-    session.stop(channel)
+  if (content === "!osrs subscribe" || content === "!osrs sub") {
+    subscribe(channel)
+  } else if (content === "!osrs unsubscribe" || content === "!osrs unsub") {
+    unsubscribe(channel)
   } else if (content === "!osrs" || content === "!osrs help") {
     listCommands(msg);
   } else if (content === "!osrs list") {

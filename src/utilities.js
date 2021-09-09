@@ -24,6 +24,20 @@ exports.fetchPlayers = async function fetchPlayers() {
 };
 
 /**
+ * Retrieve all of the guilds stored in the DB
+ * @returns {array} of guilds docs
+ */
+ exports.fetchGuilds = async function fetchGuilds(subscribed = false) {
+  let snapshot = null;
+  if (subscribed) {
+    snapshot = await db.collection("guilds").where("subscribed", "=", true).get()
+  } else {
+    snapshot = await db.collection("guilds").get()
+  }
+  return snapshot.docs.map((doc) => doc.data())
+}
+
+/**
  * Retrieve current server time from FB for timestamps
  * @returns {timestamp}
  */
