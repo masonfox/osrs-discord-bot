@@ -18,9 +18,18 @@ exports.titleCase = function titleCase(str) {
  * Retrieve the the players from the DB
  * @returns {array} of players
  */
-exports.fetchPlayers = async function fetchPlayers() {
-  const snapshot = await db.collection("users").get();
+exports.fetchAllPlayers = async function fetchPlayers() {
+  const snapshot = await db.collection("players").get();
   return snapshot.docs.map((doc) => doc.data());
+};
+
+/**
+ * Retrieve the the players from the DB for a specific guild
+ * @returns {array} of players
+ */
+ exports.fetchGuildPlayers = async function fetchGuildPlayers(guildId) {
+  const doc = await db.collection("guilds").doc(guildId).get();
+  return doc.data().players;
 };
 
 /**

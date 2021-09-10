@@ -72,6 +72,7 @@ const getCurrentState = async function getCurrentState(data) {
 
 const trackNewPlayer = async function trackNewPlayer(item) {
   await db.collection("players").doc(item.playerName).set({
+      name: item.playerName,
       skills: item.current,
       createdAt: timestamp()
   })
