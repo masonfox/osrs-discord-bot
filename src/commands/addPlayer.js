@@ -33,6 +33,6 @@ module.exports = async function addPlayer(msg) {
 }
 
 async function insertNewPlayer(name) {
-    const data = await app.getRSData([name])
+    const data = await app.getRSData([{ name }])
     await app.trackNewPlayer(data[0])
 }
