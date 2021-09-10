@@ -3,6 +3,7 @@ const { db } = require("./src/firebase");
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
 const { session, subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
+const app = require("./src/app");
 var cron = require('node-cron');
 
 const cronTime = (process.env.NODE_ENV !== "production") ? "*/10 * * * * *" : "*/5 * * * *"; // 10 seconds or 5 minutes
@@ -13,12 +14,8 @@ let cronRuns = 1
  */
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  cron.schedule(cronTime, () => {
-    console.log(`The cron has run ${cronRuns} time(s)`)
-    // launch the bot's functionality
-    // boot()
-    cronRuns += 1
-  });
+  // launch the bot's functionality
+  boot()
 });
 
 /**
@@ -27,6 +24,15 @@ client.on("ready", async () => {
 async function boot() {
   const guilds = await fetchGuilds(true)
   console.log(`${guilds.length} guilds are subscribed to updates!`)
+  // run app immediately
+  app.main()
+  // cron.schedule(cronTime, () => {
+  //   console.log(`The cron has run ${cronRuns} time(s)`)
+  //   // begin app logic
+    
+  //   // increment count
+  //   cronRuns += 1
+  // });
   // const guild = client.guilds.cache.first()
   // const doc = await db.collection("guilds").doc(guild.id).get()
   // if (doc.exists && doc.data()?.running) {

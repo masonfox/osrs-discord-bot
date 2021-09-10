@@ -1,10 +1,12 @@
 const { hiscores } = require("osrs-json-api");
 const {
   titleCase,
-  fetchPlayers,
+  fetchAllPlayers,
   timestamp,
   skillIcon,
+  fetchGuilds
 } = require("./utilities");
+const client = require("./client");
 const { db } = require("./firebase");
 
 /**
@@ -12,7 +14,7 @@ const { db } = require("./firebase");
  */
 const main = async function main() {
   // fetch users to track
-  const users = await fetchPlayers();
+  const users = await fetchAllPlayers();
   // retrieve and format data from OSRS API
   const currentData = await getRSData(users);
   // append any previous data stored for each user
@@ -22,7 +24,9 @@ const main = async function main() {
     // compare
     const compared = await compareState(filteredData);
 
-    return constructMessage(compared);
+    const withMessages = constructMessage(compared);
+
+    await sendMessages(withMessages)
   } else {
     return [];
   }
@@ -35,12 +39,12 @@ const main = async function main() {
  */
 const getRSData = async function getRSData(players) {
   return Promise.all(
-    players.map(async (playerName) => {
-      const data = await hiscores.getPlayer(playerName);
+    players.map(async (player) => {
+      const data = await hiscores.getPlayer(player.name);
       const path = data.skills;
       const keys = Object.keys(path);
       const final = {
-        playerName,
+        playerName: player.name,
         current: {},
         previous: {},
       };
@@ -52,12 +56,13 @@ const getRSData = async function getRSData(players) {
 
 const getCurrentState = async function getCurrentState(data) {
   const filtered = [];
+
   for (let item of data) {
-    let doc = await db.collection("records").doc(item.user.osrsName).get();
+    let doc = await db.collection("players").doc(item.playerName).get();
     if (doc.exists) {
       let previous = doc.data();
       if (item.current.overall > previous.skills.overall) {
-        console.log(`${item.user.osrsName} leveled up!`);
+        console.log(`${item.playerName} leveled up!`);
         // we know one of these sub-levels is now higher, pass it along
         item.previous = previous.skills;
         filtered.push(item);
@@ -96,7 +101,7 @@ const compareState = async function compareState(data) {
         }
       });
 
-      await transitionState(obj);
+      // await transitionState(obj);
 
       delete obj.current;
       delete obj.previous;
@@ -107,11 +112,11 @@ const compareState = async function compareState(data) {
 };
 
 const transitionState = async function transitionState(data) {
-  const { current, previous, user } = data;
-  let records = db.collection("records").doc(user.osrsName);
-  let history = db.collection("history").doc(user.osrsName);
+  const { current, previous, playerName } = data;
+  let players = db.collection("players").doc(playerName);
+  let history = db.collection("history").doc(playerName);
 
-  await records.update({
+  await players.update({
     skills: current,
     updatedAt: timestamp(),
   });
@@ -125,10 +130,11 @@ const transitionState = async function transitionState(data) {
 };
 
 const constructMessage = function constructMessage(data) {
-  let final = "";
   data.forEach((record, index) => {
-    const { user, results } = record;
-    let message = `${user.osrsName} leveled up! See skill(s):\n`;
+    const { playerName, results } = record;
+    let message = `${playerName} leveled up! See skill(s):\n`;
+
+    record.message = ""
 
     results.forEach((result) => {
       let { skill, variance, level } = result;
@@ -146,10 +152,29 @@ const constructMessage = function constructMessage(data) {
     const count = results.length - 1;
     if (count !== index) message += "\n";
 
-    final += message;
+    record.message += message;
   });
-  return final;
+
+  return data;
 };
+
+const sendMessages = async function sendMessages(players) {
+  const guilds = await fetchGuilds(true)
+
+  guilds.forEach((guildObj) => {
+    let guild = client.guilds.cache.get(guildObj.guildId)
+    let channel = guild.channels.cache.get(guildObj.channelId)
+    // only return the players that leveled up that are being tracked on this server
+    let filteredPlayers = players.filter(player => guildObj.players.includes(player.playerName))
+
+    // if there are results, we need to announce them, otherwise, stay silent
+    if(filteredPlayers.length > 0) {
+      let finalMessage = "📰 Great news! I have some updates for you:\n\n"
+      filteredPlayers.forEach(player => finalMessage += player.message)
+      channel.send(finalMessage);
+    }
+  })
+}
 
 module.exports = {
   main,
