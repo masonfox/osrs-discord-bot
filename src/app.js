@@ -33,14 +33,14 @@ const main = async function main() {
  * @param {array} users
  * @returns array of user objects with skill data
  */
-const getRSData = async function getRSData(users) {
+const getRSData = async function getRSData(players) {
   return Promise.all(
-    users.map(async (user) => {
-      const data = await hiscores.getPlayer(user.osrsName);
+    players.map(async (playerName) => {
+      const data = await hiscores.getPlayer(playerName);
       const path = data.skills;
       const keys = Object.keys(path);
       const final = {
-        user,
+        playerName,
         current: {},
         previous: {},
       };
@@ -71,11 +71,10 @@ const getCurrentState = async function getCurrentState(data) {
 };
 
 const trackNewPlayer = async function trackNewPlayer(item) {
-  await db.collection("records").doc(item.user.osrsName).set({
-    skills: item.current,
-    updatedAt: timestamp(),
-    createdAt: timestamp(),
-  });
+  await db.collection("players").doc(item.playerName).set({
+      skills: item.current,
+      createdAt: timestamp()
+  })
 };
 
 const compareState = async function compareState(data) {

@@ -9,6 +9,7 @@ exports.subscribe = async function subscribe(channel) {
     channelName: channel.name,
     guildName: guild.name,
     guildId: guild.id,
+    players: [],
     updatedAt: timestamp()
   });
 };
