@@ -3,14 +3,22 @@ const { db } = require("./src/firebase");
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
 const { session, subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
+var cron = require('node-cron');
+
+const cronTime = (process.env.NODE_ENV !== "production") ? "*/10 * * * * *" : "*/5 * * * *"; // 10 seconds or 5 minutes
+let cronRuns = 1
 
 /**
  * Ready event handler
  */
 client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  // launch the bot's functionality
-  boot()
+  cron.schedule(cronTime, () => {
+    console.log(`The cron has run ${cronRuns} time(s)`)
+    // launch the bot's functionality
+    // boot()
+    cronRuns += 1
+  });
 });
 
 /**
