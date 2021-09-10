@@ -101,7 +101,7 @@ const compareState = async function compareState(data) {
         }
       });
 
-      // await transitionState(obj);
+      await transitionState(obj);
 
       delete obj.current;
       delete obj.previous;
