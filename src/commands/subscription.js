@@ -3,13 +3,21 @@ const { db } = require("../firebase");
 
 exports.subscribe = async function subscribe(channel) {
   const guild = channel.guild;
+
+  // look for any existing players and maintain them
+  const record = await db.collection("guilds").doc(guild.id).get()
+  const players = (record.exists) ? record.data().players : []
+  const createdAt = (record.exists) ? record.data().createdAt : timestamp()
+
+  // set guild - will run next tick
   await db.collection("guilds").doc(guild.id).set({
+    players,
+    createdAt,
     subscribed: true,
     channelId: channel.id,
     channelName: channel.name,
     guildName: guild.name,
     guildId: guild.id,
-    players: [],
     updatedAt: timestamp()
   });
 
