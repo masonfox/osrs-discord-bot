@@ -148,9 +148,8 @@ const constructMessage = function constructMessage(data) {
       }
     });
 
-    // handle additional spacing
-    const count = results.length - 1;
-    if (count !== index) message += "\n";
+    // add spacer between message blocks - Discord handles trimming any straggling ones
+    message += "\n"
 
     record.message += message;
   });
