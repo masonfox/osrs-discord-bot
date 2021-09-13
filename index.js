@@ -24,26 +24,14 @@ client.on("ready", async () => {
 async function boot() {
   const guilds = await fetchGuilds(true)
   console.log(`${guilds.length} guilds are subscribed to updates!`)
-  // run app immediately
-  app.main()
-  // cron.schedule(cronTime, () => {
-  //   console.log(`The cron has run ${cronRuns} time(s)`)
-  //   // begin app logic
-    
-  //   // increment count
-  //   cronRuns += 1
-  // });
-  // const guild = client.guilds.cache.first()
-  // const doc = await db.collection("guilds").doc(guild.id).get()
-  // if (doc.exists && doc.data()?.running) {
-  //   // boot session automatically in silent mode
-  //   const data = doc.data()
-  //   console.log(`Booting to ${data.guildName} / ${data.channelName} channel`)
-  //   const channel = guild.channels.cache.get(data.channelId)
-  //   session.start(channel)
-  // } else {
-  //   console.log("New instance! Please run '!osrs here'")
-  // }
+  // start cron on schedule
+  cron.schedule(cronTime, () => {
+    console.log(`The cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
+    // fire app logic
+    app.main()
+    // increment count
+    cronRuns += 1
+  });
 }
 
 /**
