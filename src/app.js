@@ -1,10 +1,12 @@
 const { hiscores } = require("osrs-json-api");
 const {
   titleCase,
-  fetchPlayers,
+  fetchAllPlayers,
   timestamp,
   skillIcon,
+  fetchGuilds
 } = require("./utilities");
+const client = require("./client");
 const { db } = require("./firebase");
 
 /**
@@ -12,7 +14,7 @@ const { db } = require("./firebase");
  */
 const main = async function main() {
   // fetch users to track
-  const users = await fetchPlayers();
+  const users = await fetchAllPlayers();
   // retrieve and format data from OSRS API
   const currentData = await getRSData(users);
   // append any previous data stored for each user
@@ -22,7 +24,9 @@ const main = async function main() {
     // compare
     const compared = await compareState(filteredData);
 
-    return constructMessage(compared);
+    const withMessages = constructMessage(compared);
+
+    await sendMessages(withMessages)
   } else {
     return [];
   }
@@ -33,14 +37,14 @@ const main = async function main() {
  * @param {array} users
  * @returns array of user objects with skill data
  */
-const getRSData = async function getRSData(users) {
+const getRSData = async function getRSData(players) {
   return Promise.all(
-    users.map(async (user) => {
-      const data = await hiscores.getPlayer(user.osrsName);
+    players.map(async (player) => {
+      const data = await hiscores.getPlayer(player.name);
       const path = data.skills;
       const keys = Object.keys(path);
       const final = {
-        user,
+        playerName: player.name,
         current: {},
         previous: {},
       };
@@ -52,12 +56,13 @@ const getRSData = async function getRSData(users) {
 
 const getCurrentState = async function getCurrentState(data) {
   const filtered = [];
+
   for (let item of data) {
-    let doc = await db.collection("records").doc(item.user.osrsName).get();
+    let doc = await db.collection("players").doc(item.playerName.toLowerCase()).get();
     if (doc.exists) {
       let previous = doc.data();
       if (item.current.overall > previous.skills.overall) {
-        console.log(`${item.user.osrsName} leveled up!`);
+        console.log(`${item.playerName} leveled up!`);
         // we know one of these sub-levels is now higher, pass it along
         item.previous = previous.skills;
         filtered.push(item);
@@ -71,11 +76,11 @@ const getCurrentState = async function getCurrentState(data) {
 };
 
 const trackNewPlayer = async function trackNewPlayer(item) {
-  await db.collection("records").doc(item.user.osrsName).set({
-    skills: item.current,
-    updatedAt: timestamp(),
-    createdAt: timestamp(),
-  });
+  await db.collection("players").doc(item.playerName.toLowerCase()).set({
+      name: item.playerName,
+      skills: item.current,
+      createdAt: timestamp()
+  })
 };
 
 const compareState = async function compareState(data) {
@@ -107,11 +112,11 @@ const compareState = async function compareState(data) {
 };
 
 const transitionState = async function transitionState(data) {
-  const { current, previous, user } = data;
-  let records = db.collection("records").doc(user.osrsName);
-  let history = db.collection("history").doc(user.osrsName);
+  const { current, previous, playerName } = data;
+  let players = db.collection("players").doc(playerName.toLowerCase());
+  let history = db.collection("history").doc(playerName.toLowerCase());
 
-  await records.update({
+  await players.update({
     skills: current,
     updatedAt: timestamp(),
   });
@@ -125,44 +130,50 @@ const transitionState = async function transitionState(data) {
 };
 
 const constructMessage = function constructMessage(data) {
-  let final = "";
   data.forEach((record, index) => {
-    const { user, results } = record;
-    let message = `${user.osrsName} leveled up! See skill(s):\n`;
+    const { playerName, results } = record;
+    let message = `**${playerName}** leveled up! See skill(s):\n`;
+
+    record.message = ""
 
     results.forEach((result) => {
       let { skill, variance, level } = result;
       // construct message
       if (level == 99) {
         // TODO: add a celebrate gif?
-        message += `> ${skillIcon(skill)} - **${skill}** is now maxed at 99! Congrats! 🎉\n`;
+        message += `> ${skillIcon(skill)} - **${skill}** is now maxed at **99**! Congrats! 🎉\n`;
       } else {
         let levelText = variance > 1 ? "levels" : "level";
-        message += `> ${skillIcon(skill)} - **${skill}** increased ${variance} ${levelText} to ${level}!\n`;
+        message += `> ${skillIcon(skill)} - ${skill} increased ${variance} ${levelText} to ${level}!\n`;
       }
     });
 
-    // handle additional spacing
-    const count = results.length - 1;
-    if (count !== index) message += "\n";
+    // add spacer between message blocks - Discord handles trimming any straggling ones
+    message += "\n"
 
-    final += message;
+    record.message += message;
   });
-  return final;
+
+  return data;
 };
 
-const setDBGuild = async function setDBGuild(running, channel, error = {}) {
-  const guild = channel.guild;
-  await db.collection("guilds").doc(guild.id).set({
-    running,
-    error,
-    channelId: channel.id,
-    channelName: channel.name,
-    guildName: guild.name,
-    guildId: guild.id,
-    updatedAt: timestamp(),
-  });
-};
+const sendMessages = async function sendMessages(players) {
+  const guilds = await fetchGuilds(true)
+
+  guilds.forEach((guildObj) => {
+    let guild = client.guilds.cache.get(guildObj.guildId)
+    let channel = guild.channels.cache.get(guildObj.channelId)
+    // only return the players that leveled up that are being tracked on this server
+    let filteredPlayers = players.filter(player => guildObj.players.includes(player.playerName.toLowerCase()))
+
+    // if there are results, we need to announce them, otherwise, stay silent
+    if(filteredPlayers.length > 0) {
+      let finalMessage = "📰 Great news! I have some updates for you:\n\n"
+      filteredPlayers.forEach(player => finalMessage += player.message)
+      channel.send(finalMessage);
+    }
+  })
+}
 
 module.exports = {
   main,
@@ -171,6 +182,5 @@ module.exports = {
   trackNewPlayer,
   compareState,
   transitionState,
-  constructMessage,
-  setDBGuild,
+  constructMessage
 };

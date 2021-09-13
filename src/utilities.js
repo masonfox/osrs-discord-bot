@@ -18,10 +18,33 @@ exports.titleCase = function titleCase(str) {
  * Retrieve the the players from the DB
  * @returns {array} of players
  */
-exports.fetchPlayers = async function fetchPlayers() {
-  const snapshot = await db.collection("users").get();
+exports.fetchAllPlayers = async function fetchPlayers() {
+  const snapshot = await db.collection("players").get();
   return snapshot.docs.map((doc) => doc.data());
 };
+
+/**
+ * Retrieve the the players from the DB for a specific guild
+ * @returns {array} of players
+ */
+ exports.fetchGuildPlayers = async function fetchGuildPlayers(guildId) {
+  const doc = await db.collection("guilds").doc(guildId).get();
+  return doc.data().players;
+};
+
+/**
+ * Retrieve all of the guilds stored in the DB
+ * @returns {array} of guilds docs
+ */
+ exports.fetchGuilds = async function fetchGuilds(subscribed = false) {
+  let snapshot = null;
+  if (subscribed) {
+    snapshot = await db.collection("guilds").where("subscribed", "=", true).get()
+  } else {
+    snapshot = await db.collection("guilds").get()
+  }
+  return snapshot.docs.map((doc) => doc.data())
+}
 
 /**
  * Retrieve current server time from FB for timestamps
