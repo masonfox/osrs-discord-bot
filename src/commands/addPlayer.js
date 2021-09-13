@@ -9,13 +9,14 @@ module.exports = async function addPlayer(msg) {
     let arr = content.split(" ")
     // ensure a name is provided
     if (arr.length !== 3) return msg.channel.send("I think you forgot a name after `add`!")
-    let name = arr[2].toLowerCase()
+    let name = arr[2]
+    let nameLowered = name.toLowerCase()
     // try and get the user to validate their add
     try {
         // determine if the player exists in general
         await hiscores.getPlayer(name);
         // see if they already exist in the players table
-        const player = await db.collection("players").doc(name).get()
+        const player = await db.collection("players").doc(nameLowered).get()
         // if they don't exist, add them
         if (!player.exists) {
             // get RS data results and insert the player
@@ -23,12 +24,13 @@ module.exports = async function addPlayer(msg) {
         }
         // related to guild
         await db.collection("guilds").doc(channel.guild.id).update({
-            players: FieldValue.arrayUnion(name),
+            players: FieldValue.arrayUnion(nameLowered),
             updatedAt: timestamp()
         })
         msg.channel.send(`🎉 **${name}** successfully added! I'll begin tracking them!`)
     } catch (error) {
         msg.channel.send(`I wasn't able to find a player named **${name}**`)
+        // console.log(error)
     }
 }
 

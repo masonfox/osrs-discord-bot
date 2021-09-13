@@ -58,7 +58,7 @@ const getCurrentState = async function getCurrentState(data) {
   const filtered = [];
 
   for (let item of data) {
-    let doc = await db.collection("players").doc(item.playerName).get();
+    let doc = await db.collection("players").doc(item.playerName.toLowerCase()).get();
     if (doc.exists) {
       let previous = doc.data();
       if (item.current.overall > previous.skills.overall) {
@@ -76,7 +76,7 @@ const getCurrentState = async function getCurrentState(data) {
 };
 
 const trackNewPlayer = async function trackNewPlayer(item) {
-  await db.collection("players").doc(item.playerName).set({
+  await db.collection("players").doc(item.playerName.toLowerCase()).set({
       name: item.playerName,
       skills: item.current,
       createdAt: timestamp()
@@ -113,8 +113,8 @@ const compareState = async function compareState(data) {
 
 const transitionState = async function transitionState(data) {
   const { current, previous, playerName } = data;
-  let players = db.collection("players").doc(playerName);
-  let history = db.collection("history").doc(playerName);
+  let players = db.collection("players").doc(playerName.toLowerCase());
+  let history = db.collection("history").doc(playerName.toLowerCase());
 
   await players.update({
     skills: current,
@@ -165,7 +165,7 @@ const sendMessages = async function sendMessages(players) {
     let guild = client.guilds.cache.get(guildObj.guildId)
     let channel = guild.channels.cache.get(guildObj.channelId)
     // only return the players that leveled up that are being tracked on this server
-    let filteredPlayers = players.filter(player => guildObj.players.includes(player.playerName))
+    let filteredPlayers = players.filter(player => guildObj.players.includes(player.playerName.toLowerCase()))
 
     // if there are results, we need to announce them, otherwise, stay silent
     if(filteredPlayers.length > 0) {
