@@ -132,7 +132,7 @@ const transitionState = async function transitionState(data) {
 const constructMessage = function constructMessage(data) {
   data.forEach((record, index) => {
     const { playerName, results } = record;
-    let message = `${playerName} leveled up! See skill(s):\n`;
+    let message = `**${playerName}** leveled up! See skill(s):\n`;
 
     record.message = ""
 
@@ -141,10 +141,10 @@ const constructMessage = function constructMessage(data) {
       // construct message
       if (level == 99) {
         // TODO: add a celebrate gif?
-        message += `> ${skillIcon(skill)} - **${skill}** is now maxed at 99! Congrats! 🎉\n`;
+        message += `> ${skillIcon(skill)} - **${skill}** is now maxed at **99**! Congrats! 🎉\n`;
       } else {
         let levelText = variance > 1 ? "levels" : "level";
-        message += `> ${skillIcon(skill)} - **${skill}** increased ${variance} ${levelText} to ${level}!\n`;
+        message += `> ${skillIcon(skill)} - ${skill} increased ${variance} ${levelText} to ${level}!\n`;
       }
     });
 
