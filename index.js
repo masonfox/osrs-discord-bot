@@ -1,8 +1,7 @@
 require("dotenv").config(); // initialize dotenv
-const { db } = require("./src/firebase");
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
-const { session, subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
+const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
 const app = require("./src/app");
 var cron = require('node-cron');
 
