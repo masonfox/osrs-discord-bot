@@ -6,7 +6,7 @@ const { session, subscribe, unsubscribe, listPlayers, listCommands, addPlayer, r
 const app = require("./src/app");
 var cron = require('node-cron');
 
-const cronTime = (process.env.NODE_ENV !== "production") ? "*/10 * * * * *" : "0 */3 * * *"; // 10 seconds or 6 hours
+const cronTime = (process.env.NODE_ENV !== "production") ? "*/10 * * * * *" : "0 */3 * * *"; // 10 seconds or 3 hours
 let cronRuns = 1
 
 /**
