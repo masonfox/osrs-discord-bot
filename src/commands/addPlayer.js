@@ -9,7 +9,8 @@ module.exports = async function addPlayer(msg) {
     let arr = content.split(" ")
     // ensure a name is provided
     if (arr.length !== 3) return msg.channel.send("I think you forgot a name after `add`!")
-    let name = arr[2]
+    let name = arr[2].trim()
+    if (name.includes("+")) name = name.replace("+", " ") // add space in place of +
     let nameLowered = name.toLowerCase()
     // try and get the user to validate their add
     try {

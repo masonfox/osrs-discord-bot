@@ -7,7 +7,8 @@ module.exports = async function removePlayer(msg) {
     let arr = content.split(" ")
     // ensure a name is provided
     if (arr.length !== 3) return msg.channel.send("I think you forgot a name after `remove`!")
-    let name = arr[2]
+    let name = arr[2].trim()
+    if (name.includes("+")) name = name.replace("+", " ") // add space in place of +
     let nameLowered = name.toLowerCase()
     try {
         const guild = await db.collection("guilds").doc(channel.guild.id).get();
