@@ -954,6 +954,11 @@ date-and-time@^2.0.0:
   resolved "https://registry.yarnpkg.com/date-and-time/-/date-and-time-2.0.0.tgz#99f5fb6b6c7bcd4d1f6dcbeb37553dc0ff797b65"
   integrity sha512-HJSzj25iPm8E01nt+rSmCIlwjsmjvKfUivG/kXBglpymcHF1FolWAqWwTEV4FvN1Lx5UjPf0J1W4H8yQsVBfFg==
 
+date-fns-tz@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/date-fns-tz/-/date-fns-tz-1.2.2.tgz#89432b54ce3fa7d050a2039e997e5b6a96df35dd"
+  integrity sha512-vWtn44eEqnLbkACb7T5G5gPgKR4nY8NkNMOCyoY49NsRGHrcDmY2aysCyzDeA+u+vcDBn/w6nQqEDyouRs4m8w==
+
 date-fns@^2.28.0:
   version "2.28.0"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.28.0.tgz#9570d656f5fc13143e50c975a3b6bbeb46cd08b2"
