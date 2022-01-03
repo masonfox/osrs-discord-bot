@@ -1,12 +1,16 @@
 require("dotenv").config(); // initialize dotenv
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
-const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump } = require("./src/commands")
+const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when } = require("./src/commands")
 const app = require("./src/app");
+const format = require("date-fns/format")
+const add = require("date-fns/add")
 var cron = require('node-cron');
 
-const cronTime = (process.env.NODE_ENV !== "production") ? "*/10 * * * * *" : "0 */3 * * *"; // 10 seconds or 3 hours
 let cronRuns = 1
+let nextRun = new Date() 
+let cronFrequency = 2 // hours
+const cronTime = (process.env.NODE_ENV !== "production") ? "*/10 * * * * *" : `0 */${cronFrequency} * * *`; // 10 seconds or 3 hours
 
 /**
  * Ready event handler
@@ -23,6 +27,9 @@ client.on("ready", async () => {
 async function boot() {
   const guilds = await fetchGuilds(true)
   console.log(`${guilds.length} guilds are subscribed to updates!`)
+  // fire app logic on boot
+  app.main()
+  updateNextRun()
   // start cron on schedule
   cron.schedule(cronTime, () => {
     console.log(`The cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
@@ -30,6 +37,7 @@ async function boot() {
     app.main()
     // increment count
     cronRuns += 1
+    updateNextRun()
   });
 }
 
@@ -53,8 +61,18 @@ client.on("messageCreate", async (msg) => {
     removePlayer(msg)
   } else if (content === "!osrs status") {
     statusDump(channel)
+  } else if (content === "!osrs when") {
+    when(channel, nextRun)
   }
 });
+
+/**
+ * Handles setting and announcing the time the cron will run again
+ */
+function updateNextRun () {
+  nextRun = format(add(new Date(), { hours: cronFrequency }), "H:mm aa O")
+  console.log(`Next update at: ${nextRun}`)
+}
 
 // DO NOT MOVE - MUST BE LAST LINE
 client.login(process.env.CLIENT_TOKEN); // login bot using token
