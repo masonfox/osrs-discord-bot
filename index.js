@@ -23,6 +23,8 @@ client.on("ready", async () => {
 async function boot() {
   const guilds = await fetchGuilds(true)
   console.log(`${guilds.length} guilds are subscribed to updates!`)
+  // fire app logic on boot
+  app.main()
   // start cron on schedule
   cron.schedule(cronTime, () => {
     console.log(`The cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
