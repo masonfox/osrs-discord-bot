@@ -6,5 +6,6 @@ module.exports = function listCommands(msg) {
       > - \`list\` - lists all of the currently tracked players
       > - \`add [osrs name]\` - add a player to track
       > - \`remove [osrs name]\` - remove a tracked player
+      > - \`when\` - reads out the next update time
       > - \`status\` - provide a status dump for this channel`);
 };
