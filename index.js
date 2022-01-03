@@ -3,7 +3,7 @@ const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
 const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when } = require("./src/commands")
 const app = require("./src/app");
-const format = require("date-fns/format")
+const formatInTimeZone = require("date-fns-tz/formatInTimeZone")
 const add = require("date-fns/add")
 var cron = require('node-cron');
 
@@ -70,7 +70,7 @@ client.on("messageCreate", async (msg) => {
  * Handles setting and announcing the time the cron will run again
  */
 function updateNextRun () {
-  nextRun = format(add(new Date(), { hours: cronFrequency }), "H:mm aa O")
+  nextRun = formatInTimeZone(add(new Date(), { hours: cronFrequency }), "America/New_York", "hh:mm aa (O)")
   console.log(`Next update at: ${nextRun}`)
 }
 
