@@ -6,6 +6,8 @@ const {
   skillIcon,
   fetchGuilds
 } = require("./utilities");
+const Player = require('./models/player')
+const Compare = require('./models/compare')
 const client = require("./client");
 const { db } = require("./firebase");
 
@@ -15,20 +17,25 @@ const { db } = require("./firebase");
 const main = async function main() {
   // fetch users to track
   const users = await fetchAllPlayers();
+
   // retrieve and format data from OSRS API
-  const currentData = await getRSData(users);
-  // append any previous data stored for each user
-  const filteredData = await getCurrentState(currentData);
+  const currentPlayerState = await getRSData(users);
 
-  if (filteredData.length > 0) {
-    // compare
-    const compared = await compareState(filteredData);
+  // returns consolidated player compare state for those who are eligble
+  const filteredPlayerStates = await getDBState(currentPlayerState);
 
-    const withMessages = constructMessage(compared);
+  if (filteredPlayerStates.length > 0) {
+      console.log('YUP')
+      // compare
+      const compared = await compareState(filteredPlayerStates);
 
-    await sendMessages(withMessages)
-  } else {
-    return [];
+      console.log(compared[0].results)
+
+      // const withMessages = constructMessage(compared);
+
+      // await sendMessages(withMessages)
+    } else {
+      return [];
   }
 };
 
@@ -39,33 +46,25 @@ const main = async function main() {
  */
 const getRSData = async function getRSData(players) {
   return Promise.all(
-    players.map(async (player) => {
-      const data = await hiscores.getPlayer(player.name);
-      const path = data.skills;
-      const keys = Object.keys(path);
-      const final = {
-        playerName: player.name,
-        current: {},
-        previous: {},
-      };
-      keys.forEach((key) => (final.current[key] = parseInt(path[key].level)));
-      return final;
+    players.map(async (playerObj) => {
+      const { skills, bosses, clues } = await hiscores.getPlayer(playerObj.name);
+
+      return new Player(playerObj.name, skills, bosses, clues)
     })
   );
 };
 
-const getCurrentState = async function getCurrentState(data) {
+const getDBState = async function getDBState(currentState) {
   const filtered = [];
 
-  for (let item of data) {
-    let doc = await db.collection("players").doc(item.playerName.toLowerCase()).get();
+  for (let item of currentState) {
+    let doc = await db.collection("players").doc(item.name.toLowerCase()).get();
     if (doc.exists) {
-      let previous = doc.data();
-      if (item.current.overall > previous.skills.overall) {
-        console.log(`${item.playerName} leveled up!`);
+      let DBState = doc.data()
+      if (item.skills.overall > DBState.skills.overall) {
+        console.log(`${item.name} leveled up!`);
         // we know one of these sub-levels is now higher, pass it along
-        item.previous = previous.skills;
-        filtered.push(item);
+        filtered.push(new Compare(item, DBState));
       }
     } else {
       await trackNewPlayer(item);
@@ -101,7 +100,7 @@ const compareState = async function compareState(data) {
         }
       });
 
-      await transitionState(obj);
+      // await transitionState(obj);
 
       delete obj.current;
       delete obj.previous;
@@ -178,7 +177,7 @@ const sendMessages = async function sendMessages(players) {
 module.exports = {
   main,
   getRSData,
-  getCurrentState,
+  // getCurrentState,
   trackNewPlayer,
   compareState,
   transitionState,
