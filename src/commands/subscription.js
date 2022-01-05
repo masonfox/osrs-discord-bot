@@ -22,7 +22,7 @@ exports.subscribe = async function subscribe(channel) {
   });
 
   // notify
-  channel.send(`👋 Thanks for setting me up! I'll watch for changes every 5 min! I'll post here in ${channel.name}! Happy leveling!`)
+  channel.send(`👋 Thanks for setting me up! I'll watch for changes every 2 hours! I'll post here in ${channel.name}! Happy leveling!`)
 };
 
 exports.unsubscribe = async function unsubscribe(channel) {
