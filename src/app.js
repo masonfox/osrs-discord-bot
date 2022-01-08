@@ -180,44 +180,6 @@ const constructMessage = function constructMessage(data) {
     // console.log(block)
 
     record.renderBlock = block;
-
-    /* text-based approach
-    let message = `**${name}** progressed their account:\n`
-
-    if(record.hasUpdatedSkills) {
-      results.skills.forEach((result) => {
-        let { skill, variance, level } = result;
-        // construct message
-        if (level == 99) {
-          // TODO: add a celebrate gif?
-          message += `> ${skillIcon(skill)} - **${titleCase(skill)}** is now maxed at **99**! Congrats! 🎉\n`;
-        } else {
-          let levelText = variance > 1 ? "levels" : "level";
-          message += `> ${skillIcon(skill)} - **${titleCase(skill)}** increased ${variance} ${levelText} to ${level}!\n`;
-        }
-      });
-    }
-
-    if(record.hasUpdatedClues) {
-      results.clues.forEach((result) => {
-        let { clueType, score, variance } = result;
-        let scrollText = (variance > 1) ? "scrolls" : "scroll"
-        message += `> 📜 - Completed ${variance} ${clueType} clue ${scrollText} for a total of ${score}\n`
-      })
-    }
-
-    if(record.hasUpdatedBosses) {
-      results.bosses.forEach((result) => {
-        let { boss, score, variance } = result;
-        const nonBosses = ["Barrows Chests", "Chambers of Xeric", "Chambers of Xeric: Challenge Mode", "The Corrupted Gauntlet", "The Gauntlet", "Theatre of Blood", "Theatre of Blood: Hard Mode"]
-        let actionText = (nonBosses.includes(boss) ? "completed" : "defeated")
-        let timeText = (variance > 1) ? "times" : "time"
-        message += `> 👹 - **${titleCase(boss)}** ${actionText} ${variance} ${timeText} for a total of ${score}\n`
-      })
-    }
-
-    record.message = message
-    */
   });
 
   return data;
