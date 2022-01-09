@@ -10,7 +10,7 @@ var cron = require('node-cron');
 let cronRuns = 1
 let nextRun = new Date() 
 let cronFrequency = 2 // hours
-const cronTime = (process.env.NODE_ENV !== "production") ? "*/10 * * * * *" : `0 */${cronFrequency} * * *`; // 10 seconds or 3 hours
+const cronTime = (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : `0 */${cronFrequency} * * *`; // 30 seconds or 3 hours
 
 /**
  * Ready event handler
