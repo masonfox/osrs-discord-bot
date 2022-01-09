@@ -65,7 +65,7 @@ const getDBState = async function getDBState(currentStatePlayers) {
         filtered.push(comparison);
         
         // update the db with the latest dataset for this user
-        // await transitionState(comparison);
+        await transitionState(comparison);
       }
     } else {
       await trackNewPlayer(item);
