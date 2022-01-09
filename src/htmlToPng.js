@@ -139,7 +139,7 @@ module.exports = async (channel, players = null) => {
         html: _htmlTemplate,
         quality: 100,
         puppeteerArgs: {
-        args: ["--no-sandbox"],
+        args: ["--no-sandbox","--disable-setuid-sandbox"],
         },
         content
     })
