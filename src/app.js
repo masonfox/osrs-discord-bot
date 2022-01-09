@@ -76,7 +76,7 @@ const getDBState = async function getDBState(currentStatePlayers) {
 };
 
 const trackNewPlayer = async function trackNewPlayer(item) {
-  await db.collection("players").doc(item.playerName.toLowerCase()).set({
+  await db.collection("players").doc(item.name.toLowerCase()).set({
       name: item.name,
       clues: item.clues,
       bosses: item.bosses,
