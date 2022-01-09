@@ -3,11 +3,15 @@ const {
   titleCase,
   fetchAllPlayers,
   timestamp,
-  skillIcon,
+  getResource,
+  bossMap,
   fetchGuilds
 } = require("./utilities");
+const Player = require('./models/player')
+const Compare = require('./models/compare')
 const client = require("./client");
 const { db } = require("./firebase");
+const htmlToPng = require("./htmlToPng")
 
 /**
  * Main app function
@@ -15,20 +19,19 @@ const { db } = require("./firebase");
 const main = async function main() {
   // fetch users to track
   const users = await fetchAllPlayers();
+
   // retrieve and format data from OSRS API
-  const currentData = await getRSData(users);
-  // append any previous data stored for each user
-  const filteredData = await getCurrentState(currentData);
+  const currentPlayerState = await getRSData(users);
 
-  if (filteredData.length > 0) {
-    // compare
-    const compared = await compareState(filteredData);
+  // returns consolidated player compare state for those who are eligble
+  const progressedPlayers = await getDBState(currentPlayerState);
 
-    const withMessages = constructMessage(compared);
-
-    await sendMessages(withMessages)
-  } else {
-    return [];
+  if (progressedPlayers.length > 0) {
+      const withMessages = constructMessage(progressedPlayers);
+      await sendMessages(withMessages)
+    } else {
+      console.log("No tracked players eligble for updates")
+      return [];
   }
 };
 
@@ -39,33 +42,30 @@ const main = async function main() {
  */
 const getRSData = async function getRSData(players) {
   return Promise.all(
-    players.map(async (player) => {
-      const data = await hiscores.getPlayer(player.name);
-      const path = data.skills;
-      const keys = Object.keys(path);
-      const final = {
-        playerName: player.name,
-        current: {},
-        previous: {},
-      };
-      keys.forEach((key) => (final.current[key] = parseInt(path[key].level)));
-      return final;
+    players.map(async (playerObj) => {
+      const { skills, bosses, clues } = await hiscores.getPlayer(playerObj.name);
+
+      return new Player(playerObj.name, skills, bosses, clues)
     })
   );
 };
 
-const getCurrentState = async function getCurrentState(data) {
+const getDBState = async function getDBState(currentStatePlayers) {
   const filtered = [];
 
-  for (let item of data) {
-    let doc = await db.collection("players").doc(item.playerName.toLowerCase()).get();
+  for (let player of currentStatePlayers) {
+    let doc = await db.collection("players").doc(player.name.toLowerCase()).get();
     if (doc.exists) {
-      let previous = doc.data();
-      if (item.current.overall > previous.skills.overall) {
-        console.log(`${item.playerName} leveled up!`);
+      let DBState = doc.data()
+      let comparison = new Compare(player, DBState)
+      if (comparison.hasProgressed) {
+        console.log(`${comparison.name} progressed`);
+
         // we know one of these sub-levels is now higher, pass it along
-        item.previous = previous.skills;
-        filtered.push(item);
+        filtered.push(comparison);
+        
+        // update the db with the latest dataset for this user
+        await transitionState(comparison);
       }
     } else {
       await trackNewPlayer(item);
@@ -76,82 +76,110 @@ const getCurrentState = async function getCurrentState(data) {
 };
 
 const trackNewPlayer = async function trackNewPlayer(item) {
-  await db.collection("players").doc(item.playerName.toLowerCase()).set({
-      name: item.playerName,
-      skills: item.current,
+  await db.collection("players").doc(item.name.toLowerCase()).set({
+      name: item.name,
+      clues: item.clues,
+      bosses: item.bosses,
+      skills: item.skills,
       createdAt: timestamp()
   })
 };
 
-const compareState = async function compareState(data) {
-  return Promise.all(
-    data.map(async (obj) => {
-      let { previous, current } = obj;
-      let keys = Object.keys(obj.current);
-      let results = [];
-
-      keys.forEach((key) => {
-        if (previous[key] !== current[key] && key !== "overall") {
-          // prepare results
-          results.push({
-            skill: titleCase(key),
-            variance: parseInt(current[key]) - parseInt(previous[key]),
-            level: current[key],
-          });
-        }
-      });
-
-      await transitionState(obj);
-
-      delete obj.current;
-      delete obj.previous;
-
-      return { ...obj, results };
-    })
-  );
-};
-
 const transitionState = async function transitionState(data) {
-  const { current, previous, playerName } = data;
-  let players = db.collection("players").doc(playerName.toLowerCase());
-  let history = db.collection("history").doc(playerName.toLowerCase());
+  const { current, previous, name } = data;
+  let players = db.collection("players").doc(name.toLowerCase());
+  let history = db.collection("history").doc(name.toLowerCase());
 
   await players.update({
-    skills: current,
-    updatedAt: timestamp(),
-  });
-  await history.set({
+    clues: current.clues,
+    bosses: current.bosses,
+    skills: current.skills,
     updatedAt: timestamp(),
   });
   await history.collection("records").add({
     skills: previous,
     createdAt: timestamp(),
   });
+  await history.set({
+    updatedAt: timestamp(),
+  });
 };
 
 const constructMessage = function constructMessage(data) {
   data.forEach((record, index) => {
-    const { playerName, results } = record;
-    let message = `**${playerName}** leveled up! See skill(s):\n`;
+    const { name, results } = record;
 
-    record.message = ""
+    // create the base container that everything will nest inside
+    let block = `<div class="user-block"><h1 class="player-name">${name}</h1>`
 
-    results.forEach((result) => {
-      let { skill, variance, level } = result;
-      // construct message
-      if (level == 99) {
-        // TODO: add a celebrate gif?
-        message += `> ${skillIcon(skill)} - **${skill}** is now maxed at **99**! Congrats! 🎉\n`;
-      } else {
-        let levelText = variance > 1 ? "levels" : "level";
-        message += `> ${skillIcon(skill)} - ${skill} increased ${variance} ${levelText} to ${level}!\n`;
-      }
-    });
+    // build skilsl block, if necessary
+    if(record.hasUpdatedSkills) {
+      // open a row
+      block += "<div class='block-row skills'>"
 
-    // add spacer between message blocks - Discord handles trimming any straggling ones
-    message += "\n"
+      // create individual items
+      results.skills.forEach((result) => {
+        let { skill, variance, level } = result;
+        record.content[skill] = getResource(skill)
+        // construct skill item
+        block += `<div class="block-item">
+          <img src="{{${skill}}}" class="skill-icon">
+          <h1 class="value">${level}</h1>
+          <h3 class="variance">+${variance}</h3>
+        </div>`
+      });
 
-    record.message += message;
+      // end skill row
+      block += "</div>"
+    }
+
+    // build clues block, if necessary
+    if(record.hasUpdatedClues) {
+      // open a row
+      block += "<div class='block-row clues'>"
+
+      results.clues.forEach((result) => {
+        let { clueType, score, variance } = result;
+        let iconName = `clue_${clueType}`
+        record.content[iconName] = getResource(iconName)
+        // construct clue item
+        block += `<div class="block-item">
+          <img src="{{${iconName}}}" class="skill-icon">
+          <h1 class="value">${score}</h1>
+          <h3 class="variance">+${variance}</h3>
+        </div>`
+      })
+
+      // end clues row
+      block += "</div>"
+    }
+
+    // build boss block, if necessary
+    if(record.hasUpdatedBosses) {
+      // open a row
+      block += "<div class='block-row clues'>"
+
+      results.bosses.forEach((result) => {
+        let { boss, score, variance } = result;
+        record.content[bossMap(boss)] = getResource(bossMap(boss))
+        // construct clue item
+        block += `<div class="block-item">
+          <img src="{{${bossMap(boss)}}}" class="skill-icon">
+          <h1 class="value">${score}</h1>
+          <h3 class="variance">+${variance}</h3>
+        </div>`
+      })
+
+      // end bosses row
+      block += "</div>"
+    }
+
+    // close the overall block
+    block += "</div>"
+
+    // console.log(block)
+
+    record.renderBlock = block;
   });
 
   return data;
@@ -160,27 +188,20 @@ const constructMessage = function constructMessage(data) {
 const sendMessages = async function sendMessages(players) {
   const guilds = await fetchGuilds(true)
 
-  guilds.forEach((guildObj) => {
-    let guild = client.guilds.cache.get(guildObj.guildId)
-    let channel = guild.channels.cache.get(guildObj.channelId)
-    // only return the players that leveled up that are being tracked on this server
-    let filteredPlayers = players.filter(player => guildObj.players.includes(player.playerName.toLowerCase()))
+  guilds.forEach(async (guildObj) => {
+    let guild = await client.guilds.fetch(guildObj.guildId)
+    let channel = await client.channels.fetch(guildObj.channelId)
 
-    // if there are results, we need to announce them, otherwise, stay silent
-    if(filteredPlayers.length > 0) {
-      let finalMessage = "📰 Great news! I have some updates for you:\n\n"
-      filteredPlayers.forEach(player => finalMessage += player.message)
-      channel.send(finalMessage);
-    }
+    // prepare, transform, and send image to channel
+    htmlToPng(channel, players)
   })
 }
 
 module.exports = {
   main,
   getRSData,
-  getCurrentState,
+  // getCurrentState,
   trackNewPlayer,
-  compareState,
   transitionState,
   constructMessage
 };

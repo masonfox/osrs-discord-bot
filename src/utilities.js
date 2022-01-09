@@ -1,4 +1,6 @@
 const { db } = require("./firebase");
+const path = require("path")
+const fs = require('fs')
 var FieldValue = require("firebase-admin").firestore.FieldValue;
 
 /**
@@ -54,32 +56,67 @@ exports.timestamp = function timestamp() {
   return FieldValue.serverTimestamp()
 }
 
-exports.skillIcon = function skillIcon(skill) {
-  const icons = {
-    agility: "🏃‍♂️",
-    attack: "⚔",
-    construction: "🔨",
-    cooking: "🍲",
-    crafting: "⚒",
-    defence : "🛡",
-    farming: "🌱",
-    firemaking: "🔥",
-    fishing: "🎣",
-    fletching: "🔪",
-    herblore: "🌿",
-    hitpoints: "♥",
-    hunter: "🐾",
-    magic: "🧙‍♂️",
-    mining: "⛏",
-    prayer: "🙏",
-    ranged: "🏹",
-    runecraft: "💎",
-    slayer: "💀",
-    smithing: "♨",
-    strength: "💪",
-    thieving: "💰",
-    woodcutting: "🌲",
-  }
+/**
+ * Returns a dataUri/base64 of the file int he resource directory
+ * @param {string} resourceName 
+ */
+exports.getResource = function getResource(resourceName) {
+  const iconPath = path.join(__dirname, '/resources/icons/') + resourceName + ".png"
+  const image = fs.readFileSync(iconPath)
+  const base64 = new Buffer.from(image).toString('base64')
+  return 'data:image/png;base64,' + base64
+}
 
-  return icons[skill.toLowerCase()]
+exports.bossMap = function bossMap(bossName) {
+  const map = {
+      "Abyssal Sire": "abyssal_sire",
+      "Alchemical Hydra": "alchemical_hydra",
+      "Barrows Chests": "barrows_chests",
+      "Bryophyta": "bryophyta",
+      "Callisto": "callisto",
+      "Cerberus": "cerberus",
+      "Chambers of Xeric": "chambers_of_xeric",
+      "Chambers of Xeric: Challenge Mode": "chambers_of_xeric_challenge_mode",
+      "Chaos Elemental": "chaos_elemental",
+      "Chaos Fanatic": "chaos_fanatic",
+      "Commander Zilyana": "commander_zilyana",
+      "Corporeal Beast": "corporeal_beast",
+      "Crazy Archaeologist": "crazy_archaeologist",
+      "Dagannoth Prime": "dagannoth_prime",
+      "Dagannoth Rex": "dagannoth_rex",
+      "Dagannoth Supreme": "dagannoth_supreme",
+      "Deranged Archaeologist": "deranged_archaeologist",
+      "General Graardor": "general_graardor",
+      "Giant Mole": "giant_mole",
+      "Grotesque Guardians": "grotesque_guardians",
+      "Hespori": "hespori",
+      "Kalphite Queen": "kalphite_queen",
+      "King Black Dragon": "king_black_dragon",
+      "Kraken": "kraken",
+      "Kree'Arra": "kreearra",
+      "K'ril Tsutsaroth": "kril_tsutsaroth",
+      "Mimic": "mimic",
+      "Nightmare": "nightmare",
+      "Phosani's Nightmare": "phosanis_nightmare",
+      "Obor": "obor",
+      "Sarachnis": "sarachnis",
+      "Scorpia": "scorpia",
+      "Skotizo": "skotizo",
+      "Tempoross": "tempoross",
+      "The Gauntlet": "the_gauntlet",
+      "The Corrupted Gauntlet": "the_corrupted_gauntlet",
+      "Theatre of Blood": "theatre _of_blood",
+      "Theatre of Blood: Hard Mode": "theatre _of_blood_hard_mode",
+      "Thermonuclear Smoke Devil": "thermonuclea_smoke_devil",
+      "TzKal-Zuk": "tzkal_zuk",
+      "TzTok-Jad": "tztok_jad",
+      "Venenatis": "venenatis",
+      "Vet'ion": "vetion",
+      "Vorkath": "vorkath",
+      "Wintertodt": "wintertodt",
+      "Zalcano": "zalcano",
+      "Zulrah": "Zulrah"
+  }
+  
+  return map[bossName]
 }
