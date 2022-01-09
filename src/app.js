@@ -192,18 +192,8 @@ const sendMessages = async function sendMessages(players) {
     let guild = await client.guilds.fetch(guildObj.guildId)
     let channel = await client.channels.fetch(guildObj.channelId)
 
-    const test = htmlToPng(channel, players)
-
-    // only return the players that leveled up that are being tracked on this server
-    // let filteredPlayers = players.filter(player => guildObj.players.includes(player.name.toLowerCase()))
-
-    // // if there are results, we need to announce them, otherwise, stay silent
-    // if(filteredPlayers.length > 0) {
-    //   let finalMessage = "📰 Great news! I have some updates for you:\n\n"
-    //   filteredPlayers.forEach(player => finalMessage += player.message)
-    //   console.log(finalMessage)
-    //   channel.send(finalMessage);
-    // }
+    // prepare, transform, and send image to channel
+    htmlToPng(channel, players)
   })
 }
 
