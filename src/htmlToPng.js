@@ -43,7 +43,7 @@ module.exports = async (channel, players = null) => {
                 height: 50px;
                 position: absolute;
                 left: 15px;
-                top: 5px;
+                top: 10px;
                 width: 100%;
             }
 
@@ -93,10 +93,9 @@ module.exports = async (channel, players = null) => {
             }
 
             .block-row {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                align-items: center;
+                display: grid;
+                grid-gap: .1rem;
+                grid-template-columns: 33.333% 33.333% 33.333%;
                 margin-bottom: .8rem;
             }
 
@@ -111,12 +110,13 @@ module.exports = async (channel, players = null) => {
             }
 
             .block-item .value {
-                font-size: 1.75rem;
+                font-size: 1.5rem;
                 margin-right: .35rem;
             }
 
             .block-item .variance {
                 color: green;
+                font-size: 1rem;
             }
 
             .skill-icon {
