@@ -1,7 +1,7 @@
 require("dotenv").config(); // initialize dotenv
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
-const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when } = require("./src/commands")
+const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when, rebase } = require("./src/commands")
 const app = require("./src/app");
 const formatInTimeZone = require("date-fns-tz/formatInTimeZone")
 const add = require("date-fns/add")
@@ -64,6 +64,8 @@ client.on("messageCreate", async (msg) => {
     statusDump(channel)
   } else if (content === "!osrs when") {
     when(channel, nextRun)
+  } else if (content === "!osrs rebase") {
+    rebase(msg)
   }
 });
 
