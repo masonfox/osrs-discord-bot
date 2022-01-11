@@ -123,9 +123,11 @@ const constructMessage = function constructMessage(data) {
         record.content[skill] = getResource(skill)
         // construct skill item
         block += `<div class="block-item">
-          <img src="{{${skill}}}" class="skill-icon">
-          <h1 class="value">${level}</h1>
-          <h3 class="variance">+${variance}</h3>
+          <div class="block-main">
+            <img src="{{${skill}}}" class="skill-icon">
+            <h1 class="value">${level}</h1>
+            <h3 class="variance">+${variance}</h3>
+          </div>
         </div>`
       });
 
@@ -144,9 +146,12 @@ const constructMessage = function constructMessage(data) {
         record.content[iconName] = getResource(iconName)
         // construct clue item
         block += `<div class="block-item">
-          <img src="{{${iconName}}}" class="skill-icon">
-          <h1 class="value">${score}</h1>
-          <h3 class="variance">+${variance}</h3>
+          <div class="block-main">
+            <img src="{{${iconName}}}" class="skill-icon">
+            <h1 class="value">${score}</h1>
+            <h3 class="variance">+${variance}</h3>
+          </div>
+          <small>(${titleCase(clueType)})</small>
         </div>`
       })
 
@@ -157,16 +162,19 @@ const constructMessage = function constructMessage(data) {
     // build boss block, if necessary
     if(record.hasUpdatedBosses) {
       // open a row
-      block += "<div class='block-row clues'>"
+      block += "<div class='block-row bosses'>"
 
       results.bosses.forEach((result) => {
         let { boss, score, variance } = result;
         record.content[bossMap(boss)] = getResource(bossMap(boss))
         // construct clue item
         block += `<div class="block-item">
-          <img src="{{${bossMap(boss)}}}" class="skill-icon">
-          <h1 class="value">${score}</h1>
-          <h3 class="variance">+${variance}</h3>
+          <div class="block-main">
+            <img src="{{${bossMap(boss)}}}" class="skill-icon">
+            <h1 class="value">${score}</h1>
+            <h3 class="variance">+${variance}</h3>
+          </div>
+          <small>(${boss})</small>
         </div>`
       })
 

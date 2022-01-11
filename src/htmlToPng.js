@@ -95,24 +95,20 @@ module.exports = async (channel, players = null) => {
 
             .block-row {
                 display: grid;
-                grid-gap: .1rem;
+                grid-gap: 5px;
                 grid-template-columns: 33.333% 33.333% 33.333%;
-                margin-bottom: .8rem;
+                margin-bottom: 1rem;
             }
 
-            .block-item {
+            .block-main {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
             }
 
-            .block-item:not(:last-child) {
-                padding-right: 1.25rem;
-            }
-
             .block-item .value {
                 font-size: 1.5rem;
-                margin-right: .35rem;
+                margin-right: 4px;
             }
 
             .block-item .variance {
@@ -122,8 +118,15 @@ module.exports = async (channel, players = null) => {
 
             .skill-icon {
                 height: 30px;
-                width: 30px;
+                width: auto;
                 margin-right: .5rem;
+            }
+            
+            .block-item small {
+                display: block;
+                text-align: center;
+                color: #512e06;
+                font-size: 12px;
             }
             </style>
         </head>
