@@ -116,6 +116,13 @@ module.exports = async (channel, players = null) => {
                 font-size: 1rem;
             }
 
+            .block-main .skill-max {
+                font-size: 23px;
+                position: relative;
+                left: -3px;
+                top: -2px;
+            }
+
             .skill-icon {
                 height: 30px;
                 width: auto;
