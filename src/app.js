@@ -90,18 +90,24 @@ const transitionState = async function transitionState(data) {
   let players = db.collection("players").doc(name.toLowerCase());
   let history = db.collection("history").doc(name.toLowerCase());
 
+  // share the timestamp across these updates
+  const time = timestamp()
+
   await players.update({
+    skills: current.skills,
     clues: current.clues,
     bosses: current.bosses,
-    skills: current.skills,
-    updatedAt: timestamp(),
+    updatedAt: time,
   });
   await history.collection("records").add({
-    skills: previous,
-    createdAt: timestamp(),
+    version: "v2",
+    skills: previous.skills,
+    clues: previous.clues,
+    bosses: previous.bosses,
+    createdAt: time,
   });
   await history.set({
-    updatedAt: timestamp(),
+    updatedAt: time,
   });
 };
 
