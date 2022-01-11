@@ -96,6 +96,7 @@ exports.bossMap = function bossMap(bossName) {
       "Kree'Arra": "kreearra",
       "K'ril Tsutsaroth": "kril_tsutsaroth",
       "Mimic": "mimic",
+      "Nex": "nex",
       "Nightmare": "nightmare",
       "Phosani's Nightmare": "phosanis_nightmare",
       "Obor": "obor",
