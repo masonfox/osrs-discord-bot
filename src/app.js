@@ -126,13 +126,14 @@ const constructMessage = function constructMessage(data) {
       // create individual items
       results.skills.forEach((result) => {
         let { skill, variance, level } = result;
-        let finalBlock = (level == 99) ? `<h3 class="skill-max">🎉</h3>` : `<h3 class="variance">+${variance}</h3>`;
         record.content[skill] = getResource(skill)
+        record.content["tada"] = getResource("tada")
+        let finalBlock = (level == 99) ? `<img src="{{tada}}" class="skill-max"></img>` : `<h3 class="variance">+${variance}</h3>`;
         // construct skill item
         block += `<div class="block-item">
           <div class="block-main">
             <img src="{{${skill}}}" class="skill-icon">
-            <h1 class="value">${level}</h1>
+            <h1 level="${level}" class="value">${level}</h1>
             ${finalBlock}
           </div>
         </div>`

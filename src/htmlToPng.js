@@ -111,16 +111,20 @@ module.exports = async (channel, players = null) => {
                 margin-right: 4px;
             }
 
+            .block-item .value[level="99"] {
+                color: green;
+            }
+
             .block-item .variance {
                 color: green;
                 font-size: 1rem;
             }
 
             .block-main .skill-max {
-                font-size: 23px;
+                height: 30px;
+                width: auto;
                 position: relative;
-                left: -3px;
-                top: -2px;
+                top: -1px;
             }
 
             .skill-icon {
