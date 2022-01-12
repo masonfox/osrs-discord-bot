@@ -207,8 +207,15 @@ const sendMessages = async function sendMessages(players) {
     let guild = await client.guilds.fetch(guildObj.guildId)
     let channel = await client.channels.fetch(guildObj.channelId)
 
-    // prepare, transform, and send image to channel
-    htmlToPng(channel, players)
+    let guildPlayers = players.filter((player) => {
+      return guildObj.players.includes(player.name.toLowerCase())
+    })
+
+    // only generate a response for servers where players they track progressed
+    if(guildPlayers.length > 0) {
+      // prepare, transform, and send image to channel
+      htmlToPng(channel, guildPlayers)
+    }
   })
 }
 
