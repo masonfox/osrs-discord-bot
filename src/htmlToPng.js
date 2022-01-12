@@ -7,7 +7,9 @@ module.exports = async (channel, players = null) => {
     if(!players) throw new Error("User sections are required for image creation")
 
     let block = ""
-    let content = {}
+    let content = {
+        "tada": getResource("tada")
+    }
 
     console.log(content)
     
