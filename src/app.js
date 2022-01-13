@@ -6,7 +6,8 @@ const {
   timestamp,
   getResource,
   bossMap,
-  fetchGuilds
+  fetchGuilds,
+  combatLevel
 } = require("./utilities");
 const Player = require('./models/player')
 const Compare = require('./models/compare')
@@ -122,7 +123,17 @@ const constructMessage = function constructMessage(data) {
     const { name, results } = record;
 
     // create the base container that everything will nest inside
-    let block = `<div class="user-block"><h1 class="player-name">${name}</h1>`
+    let block = `<div class="user-block">
+      <div class="player-header">
+        <h1 class="player-name">${name}</h1>
+        <span class="spacer"></span>
+        <p class="player-levels">
+          <span><b>${combatLevel(record.current.skills)}</b> combat</span>
+          <span>/</span>
+          <span><b>${record.current.skills.overall}</b> total</span>
+        </p>
+      </div>
+    `
 
     // build skilsl block, if necessary
     if(record.hasUpdatedSkills) {

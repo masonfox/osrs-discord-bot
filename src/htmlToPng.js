@@ -65,19 +65,43 @@ module.exports = async (channel, players = null) => {
                 padding: 15px 15px;
             }
 
-            .player-name {
-                color: #7B4F17;
-                text-shadow: 1px 1px 1px #000000;
-            }
-
-            h1, h2, h3, h4, h5, h6 {
+            h1, h2, h3, h4, h5, h6, p {
                 margin: 0;
                 padding: 0;
             }
 
             .player-name {
+                color: #7B4F17;
+                text-shadow: 1px 1px 1px #000000;
+            }
+
+            .player-header {
+                display: flex;
+                align-items: center;
+                flex-wrap: no-wrap;
+                justify-content: space-between;
+                padding-right: 5px;
+            }
+
+            .player-header .player-name {
                 font-size: 1.6rem;
-                margin-bottom: .5rem;
+                margin-bottom: .65rem;
+            }
+
+            .player-header .player-levels {
+                position: relative;
+                top: -4px;
+                font-size: 15px;
+                white-space: nowrap;
+            }
+
+            .player-header .spacer {
+                position: relative;
+                top: -3px;
+                background: #8e6d44;
+                height: 2px;
+                width: 100%;
+                margin: 0 .55rem;
             }
 
             div {
@@ -85,12 +109,8 @@ module.exports = async (channel, players = null) => {
             }
 
             .user-block {
-                margin: 1.2rem 0 1.2rem 0;
+                margin: 1.5rem 0;
                 width: 100%;
-            }
-
-            .user-block:not(:last-child) {
-                border-bottom: 1px solid #7B4F17;
             }
 
             .block-row {
