@@ -1,3 +1,4 @@
+require("dotenv").config(); // initialize dotenv
 const { hiscores } = require("osrs-json-api");
 const {
   titleCase,
@@ -65,7 +66,12 @@ const getDBState = async function getDBState(currentStatePlayers) {
         filtered.push(comparison);
         
         // update the db with the latest dataset for this user
-        await transitionState(comparison);
+        if (process.env.NODE_ENV !== "production") {
+          // this is useful for testing - you don't need to manually reset the db every time it runs
+          if (JSON.parse(process.env.PERSIST_PLAYER_UPDATES.toLowerCase())) {
+            await transitionState(comparison);
+          }
+        }
       }
     } else {
       await trackNewPlayer(item);
