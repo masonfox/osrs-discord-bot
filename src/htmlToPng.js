@@ -10,8 +10,6 @@ module.exports = async (channel, players = null) => {
     let content = {
         "tada": getResource("tada")
     }
-
-    console.log(content)
     
     players.forEach((player) => {
         block += player.renderBlock
