@@ -67,6 +67,21 @@ exports.getResource = function getResource(resourceName) {
   return 'data:image/png;base64,' + base64
 }
 
+/**
+ * Calculates the combat level of a player
+ * @param {object} skills 
+ * @returns combat level, number
+ */
+exports.combatLevel = function combatLevel(skills) {
+  let base = .25 * (skills.defence + skills.hitpoints + (skills.prayer *.5))
+  let melee = .325 * (skills.attack + skills.strength)
+  let ranged = .325 * (skills.ranged * 1.5)
+  let magic = .325 * (skills.magic * 1.5)
+  let max = Math.max(melee, ranged, magic)
+  let final = Math.floor(base + max)
+  return (isNaN(final)) ? "Error" : final
+}
+
 exports.bossMap = function bossMap(bossName) {
   const map = {
       "Abyssal Sire": "abyssal_sire",
