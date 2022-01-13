@@ -8,7 +8,8 @@ const {
   bossMap,
   fetchGuilds,
   combatLevel
-} = require("./utilities");
+} = require("./utilities")
+const sub = require("date-fns/sub")
 const Player = require('./models/player')
 const Compare = require('./models/compare')
 const client = require("./client");
@@ -94,28 +95,54 @@ const trackNewPlayer = async function trackNewPlayer(item) {
 
 const transitionState = async function transitionState(data) {
   const { current, previous, name } = data;
+  const currentVersion = "v2" // current history object state
   let players = db.collection("players").doc(name.toLowerCase());
   let history = db.collection("history").doc(name.toLowerCase());
 
   // share the timestamp across these updates
   const time = timestamp()
 
+  /**
+   * Updates skills in players document
+   */
   await players.update({
     skills: current.skills,
     clues: current.clues,
     bosses: current.bosses,
     updatedAt: time,
   });
+
+  /**
+   * Handle updates to history document
+   */
   await history.collection("records").add({
-    version: "v2",
+    version: currentVersion,
     skills: previous.skills,
     clues: previous.clues,
     bosses: previous.bosses,
     createdAt: time,
   });
+  // update the user document
   await history.set({
     updatedAt: time,
   });
+
+  /**
+   * Prune the player's history collection
+   */
+  const records = history.collection("records")
+
+  // delete any not aligned with currentState const
+  records.where("version", "!=", currentVersion).get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => doc.ref.delete())
+  })
+
+  // delete any further back than 30 days
+  const daysToRetainHistory = 30
+  const deadline = sub(new Date(), {days: daysToRetainHistory})
+  records.where("createdAt", "<", deadline).get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => doc.ref.delete())
+  })
 };
 
 const constructMessage = function constructMessage(data) {
