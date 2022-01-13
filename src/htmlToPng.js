@@ -90,7 +90,7 @@ module.exports = async (channel, players = null) => {
 
             .player-header .player-levels {
                 position: relative;
-                top: -4px;
+                top: -3px;
                 font-size: 15px;
                 white-space: nowrap;
             }
