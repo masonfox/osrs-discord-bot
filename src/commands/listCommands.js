@@ -7,5 +7,6 @@ module.exports = function listCommands(msg) {
       > - \`add [osrs name]\` - add a player to track
       > - \`remove [osrs name]\` - remove a tracked player
       > - \`when\` - reads out the next update time
-      > - \`status\` - provide a status dump for this channel`);
+      > - \`status\` - provide a status dump for this channel
+      > - \`donate\` - info. about donating ❤️`);
 };
