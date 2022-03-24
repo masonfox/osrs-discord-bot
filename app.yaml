@@ -2,6 +2,8 @@ runtime: nodejs16
 
 instance_class: F1
 
+entrypoint: "node index.js"
+
 # - url: /.*
 #   secure: always
 #   redirect_http_response_code: 301
