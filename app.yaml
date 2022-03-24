@@ -4,6 +4,7 @@ instance_class: F1
 
 entrypoint: "node index.js"
 
+handlers:
 - url: /.*
   secure: always
   redirect_http_response_code: 301
