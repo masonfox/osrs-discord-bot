@@ -7,8 +7,9 @@
     "node": "16.6.x"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "create-env": "printenv > .env",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mason Fox",
   "license": "ISC",

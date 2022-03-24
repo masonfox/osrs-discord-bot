@@ -1,0 +1,15 @@
+steps:
+- name: node:10.15.1
+  entrypoint: npm
+  args: ["install"]
+- name: node:10.15.1
+  entrypoint: npm
+  args: ["run", "create-env"]
+  env:
+    - 'NODE_ENV=${_NODE_ENV}'
+    - 'CLIENT_TOKEN=${_CLIENT_TOKEN}'
+    - 'PERSIST_PLAYER_UPDATES=${_PERSIST_PLAYER_UPDATES}'
+    - 'FIREBASE_CONFIG_BASE64=${_FIREBASE_CONFIG_BASE64}'
+- name: "gcr.io/cloud-builders/gcloud"
+  args: ["app", "deploy"]
+timeout: "1600s"
