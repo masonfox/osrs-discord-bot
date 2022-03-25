@@ -1,3 +1,4 @@
+const tracer = require('dd-trace').init();
 require("dotenv").config(); // initialize dotenv
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
