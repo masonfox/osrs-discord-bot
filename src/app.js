@@ -1,4 +1,5 @@
 require("dotenv").config(); // initialize dotenv
+const logger = require("../logger")
 const { hiscores } = require("osrs-json-api");
 const {
   titleCase,
@@ -15,11 +16,17 @@ const Compare = require('./models/compare')
 const client = require("./client");
 const { db } = require("./firebase");
 const htmlToPng = require("./htmlToPng")
+const { v4: uuid } = require('uuid');
 
 /**
  * Main app function
  */
 const main = async function main() {
+  // instantiate child logger for occurence with instance id
+  const childLogger = logger.child({ instance: uuid() })
+
+  childLogger.info("main started")
+
   // fetch users to track
   const users = await fetchAllPlayers();
 
@@ -30,10 +37,14 @@ const main = async function main() {
   const progressedPlayers = await getDBState(currentPlayerState);
 
   if (progressedPlayers.length > 0) {
+      // log player progressions
+      progressedPlayers.forEach((player) => {childLogger.info("Player progressed", {name: player.name, ...player.current, ...player.previous, variance: player.results})})
+
       const withMessages = constructMessage(progressedPlayers);
+      childLogger.info("Messages created")
       await sendMessages(withMessages)
     } else {
-      console.log("No tracked players eligble for updates")
+      childLogger.info("No tracked players eligble for updates")
       return [];
   }
 };
@@ -62,8 +73,6 @@ const getDBState = async function getDBState(currentStatePlayers) {
       let DBState = doc.data()
       let comparison = new Compare(player, DBState)
       if (comparison.hasProgressed) {
-        console.log(`${comparison.name} progressed`);
-
         // we know one of these sub-levels is now higher, pass it along
         filtered.push(comparison);
         

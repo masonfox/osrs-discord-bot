@@ -1,4 +1,5 @@
 const tracer = require('dd-trace').init();
+const logger = require("./logger")
 require("dotenv").config(); // initialize dotenv
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
@@ -17,7 +18,7 @@ const cronTime = (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : `0
  * Ready event handler
  */
 client.on("ready", async () => {
-  console.log(`Logged in as ${client.user.tag}!`);
+  logger.info(`Logged in as ${client.user.tag}!`);
   // launch the bot's functionality
   boot()
 });
@@ -27,14 +28,14 @@ client.on("ready", async () => {
  */
 async function boot() {
   const guilds = await fetchGuilds(true)
-  console.log(`${guilds.length} guilds are subscribed to updates!`)
+  logger.info(`${guilds.length} guilds are subscribed to updates!`)
   // fire app logic
   app.main()
   // increment count
   updateNextRun()
   // start cron on schedule
   cron.schedule(cronTime, () => {
-    console.log(`The cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
+    logger.info(`The cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
     // fire app logic
     app.main()
     // increment count
@@ -48,6 +49,25 @@ async function boot() {
  */
 client.on("messageCreate", async (msg) => {
   let { channel, content } = msg
+
+  // only log relevant messages
+  if (content.includes("!osrs")) {
+    logger.info("Message created", {
+      msg: content,
+      author: {
+        id: msg.author.id,
+        name: msg.author.username
+      },
+      channel: {
+        id: channel.id,
+        name: channel.name
+      },
+      guild: {
+        id: channel.guild.id,
+        name: channel.guild.name
+      }
+    })
+  }
 
   if (content === "!osrs subscribe" || content === "!osrs sub") {
     subscribe(channel)
@@ -77,7 +97,7 @@ client.on("messageCreate", async (msg) => {
  */
 function updateNextRun () {
   nextRun = formatInTimeZone(add(new Date(), { hours: cronFrequency }), "America/New_York", "hh:mm aa (O)")
-  console.log(`Next update at: ${nextRun}`)
+  logger.info(`Next update at: ${nextRun}`)
 }
 
 // DO NOT MOVE - MUST BE LAST LINE
