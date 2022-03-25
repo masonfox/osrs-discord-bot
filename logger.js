@@ -4,10 +4,13 @@ const { createLogger, format, transports } = require('winston');
 const logger = createLogger({
   level: 'info', // default
   exitOnError: false,
-  format: format.json(),
   transports: [
-    // new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    // new winston.transports.File({ filename: 'combined.log' }),
+    new transports.Console({
+      format: format.combine(
+        format.colorize(),
+        format.simple()
+      ),
+    })
   ],
 });
 
@@ -19,10 +22,6 @@ if (process.env.NODE_ENV == 'production') {
     ssl: true,
     format: format.json()
   }))
-} else {
-  logger.add(new transports.Console({
-    format: format.simple(),
-  }));
 }
 
 module.exports = logger

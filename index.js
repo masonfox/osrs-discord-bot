@@ -1,6 +1,7 @@
+require("dotenv").config(); // initialize dotenv
 const tracer = require('dd-trace').init();
 const logger = require("./logger")
-require("dotenv").config(); // initialize dotenv
+const { v4: uuid } = require('uuid');
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
 const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when, rebase, donate } = require("./src/commands")
@@ -37,7 +38,7 @@ async function boot() {
   cron.schedule(cronTime, () => {
     logger.info(`The cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
     // fire app logic
-    app.main()
+    // app.main()
     // increment count
     cronRuns += 1
     updateNextRun()
@@ -50,44 +51,51 @@ async function boot() {
 client.on("messageCreate", async (msg) => {
   let { channel, content } = msg
 
-  // only log relevant messages
-  if (content.includes("!osrs")) {
-    logger.info("Message created", {
-      msg: content,
-      author: {
-        id: msg.author.id,
-        name: msg.author.username
-      },
-      channel: {
-        id: channel.id,
-        name: channel.name
-      },
-      guild: {
-        id: channel.guild.id,
-        name: channel.guild.name
-      }
-    })
-  }
+  // create base cmd logger
+  const childLogger = logger.child({ 
+    instance: uuid(),
+    layer: "cmd",
+    author: {
+      id: msg.author.id,
+      name: msg.author.username
+    },
+    channel: {
+      id: channel.id,
+      name: channel.name
+    },
+    guild: {
+      id: channel.guild.id,
+      name: channel.guild.name
+    }
+  })
 
   if (content === "!osrs subscribe" || content === "!osrs sub") {
+    childLogger.info("!osrs subscribe")
     subscribe(channel)
   } else if (content === "!osrs unsubscribe" || content === "!osrs unsub") {
+    childLogger.info("!osrs unsubscribe")
     unsubscribe(channel)
   } else if (content === "!osrs" || content === "!osrs help") {
+    childLogger.info("!osrs help")
     listCommands(msg);
   } else if (content === "!osrs list") {
+    childLogger.info(content)
     listPlayers(msg)
   } else if (content.includes("!osrs add")) {
     addPlayer(msg)
   } else if (content.includes("!osrs remove")) {
     removePlayer(msg)
   } else if (content === "!osrs status") {
+    childLogger.info(content)
     statusDump(channel)
   } else if (content === "!osrs when") {
+    childLogger.info(content)
     when(channel, nextRun)
   } else if (content === "!osrs rebase") {
+    childLogger.info(content)
     rebase(msg)
   } else if (content === "!osrs donate") {
+    childLogger.info(content)
     donate(channel)
   }
 });

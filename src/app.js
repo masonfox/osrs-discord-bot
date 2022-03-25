@@ -23,7 +23,7 @@ const { v4: uuid } = require('uuid');
  */
 const main = async function main() {
   // instantiate child logger for occurence with instance id
-  const childLogger = logger.child({ instance: uuid() })
+  const childLogger = logger.child({ instance: uuid(), layer: "cron" })
 
   childLogger.info("main started")
 
