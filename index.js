@@ -38,7 +38,7 @@ async function boot() {
   cron.schedule(cronTime, () => {
     logger.info(`The cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
     // fire app logic
-    // app.main()
+    app.main()
     // increment count
     cronRuns += 1
     updateNextRun()
