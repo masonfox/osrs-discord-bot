@@ -38,7 +38,7 @@ const main = async function main() {
 
   if (progressedPlayers.length > 0) {
       // log player progressions
-      progressedPlayers.forEach((player) => {childLogger.info("Player progressed", {name: player.name, ...player.current, ...player.previous, variance: player.results})})
+      progressedPlayers.forEach((player) => {childLogger.info(`Player progressed: ${player.name}`, {name: player.name, ...player.current, ...player.previous, variance: player.results})})
 
       const withMessages = constructMessage(progressedPlayers);
       childLogger.info("Messages created")
