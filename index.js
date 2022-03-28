@@ -46,7 +46,7 @@ async function boot() {
 }
 
 /**
- * Primary message event handler
+ * Primary message/command handler
  */
 client.on("messageCreate", async (msg) => {
   let { channel, content } = msg
