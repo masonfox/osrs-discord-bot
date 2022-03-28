@@ -1,6 +1,6 @@
 module.exports = function listCommands(msg) {
   msg.channel
-    .send(`You'll find all of the commands below. You can use a command by entering \`osrs {command}\`!
+    .send(`You'll find all of the commands below. You can use a command by entering \`!osrs {command}\`!
       > - \`sub\` - begin watching tracked players
       > - \`unsub\` - stop watching tracked players
       > - \`list\` - lists all of the currently tracked players
