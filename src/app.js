@@ -140,13 +140,6 @@ const transitionState = async function transitionState(data) {
   records.where("version", "!=", currentVersion).get().then((querySnapshot) => {
     querySnapshot.forEach((doc) => doc.ref.delete())
   })
-
-  // delete any further back than 30 days
-  const daysToRetainHistory = 30
-  const deadline = sub(new Date(), {days: daysToRetainHistory})
-  records.where("createdAt", "<", deadline).get().then((querySnapshot) => {
-    querySnapshot.forEach((doc) => doc.ref.delete())
-  })
 };
 
 const constructMessage = function constructMessage(data) {
