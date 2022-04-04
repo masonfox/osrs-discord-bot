@@ -1,4 +1,5 @@
 const { db } = require("./firebase");
+const mongo = require("./db")
 const path = require("path")
 const fs = require('fs')
 var FieldValue = require("firebase-admin").firestore.FieldValue;
@@ -30,8 +31,8 @@ exports.fetchAllPlayers = async function fetchPlayers() {
  * @returns {array} of players
  */
  exports.fetchGuildPlayers = async function fetchGuildPlayers(guildId) {
-  const doc = await db.collection("guilds").doc(guildId).get();
-  return doc.data().players;
+  const guild = await mongo.db.collection("guilds").findOne({ _id: guildId });
+  return (guild) ? guild.players : []
 };
 
 /**
