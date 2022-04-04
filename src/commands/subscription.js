@@ -1,4 +1,3 @@
-const { timestamp } = require("../utilities");
 const mongo = require("../db");
 
 exports.subscribe = async function subscribe(channel) {

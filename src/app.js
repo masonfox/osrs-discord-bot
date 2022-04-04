@@ -4,7 +4,6 @@ const { hiscores } = require("osrs-json-api");
 const {
   titleCase,
   fetchAllPlayers,
-  timestamp,
   getResource,
   bossMap,
   fetchGuilds,
@@ -14,7 +13,6 @@ const Player = require("./models/player");
 const Compare = require("./models/compare");
 const client = require("./client");
 const mongo = require("./db");
-const { db } = require("./firebase");
 const htmlToPng = require("./htmlToPng");
 const { v4: uuid } = require("uuid");
 

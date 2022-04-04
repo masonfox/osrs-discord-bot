@@ -1,8 +1,6 @@
-const { db } = require("./firebase");
 const mongo = require("./db")
 const path = require("path")
 const fs = require('fs')
-var FieldValue = require("firebase-admin").firestore.FieldValue;
 const dayjs = require("dayjs")
 const advancedFormat = require('dayjs/plugin/advancedFormat')
 var utc = require('dayjs/plugin/utc')
@@ -65,14 +63,6 @@ exports.fetchAllPlayers = async function fetchPlayers() {
   } else {
     return await mongo.db.collection("guilds").count()
   }
-}
-
-/**
- * Retrieve current server time from FB for timestamps
- * @returns {timestamp}
- */
-exports.timestamp = function timestamp() {
-  return FieldValue.serverTimestamp()
 }
 
 /**
