@@ -1,34 +1,82 @@
-const { db } = require("../firebase")
-const { timestamp } = require("../utilities")
-var FieldValue = require("firebase-admin").firestore.FieldValue;
+const mongo = require("../db");
 
 module.exports = async function removePlayer(msg) {
-    let { channel, content } = msg
-    let arr = content.split(" ")
-    // ensure a name is provided
-    if (arr.length !== 3) return msg.channel.send("I think you forgot a name after `remove`!")
-    let name = arr[2].trim()
-    if (name.includes("+")) name = name.replace("+", " ") // add space in place of +
-    let nameLowered = name.toLowerCase()
-    try {
-        const guild = await db.collection("guilds").doc(channel.guild.id).get();
-        if (guild.exists) {
-            // remove the player from the players array on the guilds record
-            await db.collection("guilds").doc(channel.guild.id).update({
-                players: FieldValue.arrayRemove(nameLowered),
-                updatedAt: timestamp()
-            })
-            msg.channel.send(`Player **${name}** has been successfully removed! Queue viking burial!`)
+  let { channel, content } = msg;
+  let arr = content.split(" ");
 
-            // find if the player exists anywhere else
-            const snapshot = await db.collection("guilds").where("players", "array-contains", nameLowered).get()
-            if (snapshot.size == 0) {
-                await db.collection("players").doc(nameLowered).delete()
-            }
-        } else {
-            throw new Error("User can't be found")
-        }
-    } catch (error) {
-        msg.channel.send(`Hm, couldn't find that user. Run the \`list\` command to see all existing users`)
+  /**
+   * Validation Logic
+   */
+  // ensure a name is provided
+  if (arr.length == 2)
+    return channel.send("I think you forgot a name after `add`!");
+
+  // validate double quotes
+  if (!content.includes('"'))
+    return channel.send('Encase the name in double quotes! Example: "Zezima"');
+
+  // grab the rsn between then quotes
+  const name = content
+    .substring(content.indexOf('"') + 1, content.lastIndexOf('"'))
+    .trim();
+
+  // lower name - this is used as the id for the players collection
+  let nameLowered = name.toLowerCase();
+
+  // confirm guild subscription exists
+  const guild = await mongo.db
+    .collection("guilds")
+    .findOne({ _id: channel.guild.id });
+
+  // confirm the guilds exists and that they're subscribed to updates
+  if (guild) {
+    // bounce if the guild isn't tracking this player anyway
+    if (!guild.players.includes(nameLowered))
+      return msg.channel.send(
+        "You're not tracking this player anyway! No worries!"
+      );
+
+    /**
+     * Remove the player and send msg
+     */
+    // remove player from guild tracking
+    await mongo.db.collection("guilds").updateOne(
+      { _id: channel.guild.id },
+      {
+        $pull: { players: nameLowered },
+      }
+    );
+
+    // send message with for removal confirmation
+    msg.channel.send(
+      `Player **${name}** has been successfully removed! Queue their viking burial! ⚰️🔥`
+    );
+
+    /**
+     * Clean up
+     */
+    // find if the player is located anywhere else
+    const otherGuilds = await mongo.db
+      .collection("guilds")
+      .find({ players: nameLowered })
+      .toArray();
+
+    // if they're not tracked by other guilds, delete them
+    if (otherGuilds.length == 0) {
+      console.log(
+        `Deleting ${name} from player collection, no guilds tracking`
+      );
+      await mongo.db.collection("players").deleteOne({ _id: nameLowered }); // delete player record
+      // await mongo.db.collection("history").deleteOne({ _id: nameLowered }) // delete history record
+    } else {
+      console.log(
+        `${name} removed from ${channel.guild.id}, but not from collection`,
+        otherGuilds
+      );
     }
-}
+  } else {
+    return msg.channel.send(
+      "This server isn't subscribed, so you don't have any tracked players!"
+    );
+  }
+};
