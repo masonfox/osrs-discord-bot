@@ -1,5 +1,5 @@
 require("dotenv").config(); // initialize dotenv
-const logger = require("../logger")
+const logger = require("../logger");
 const { hiscores } = require("osrs-json-api");
 const {
   titleCase,
@@ -8,24 +8,25 @@ const {
   getResource,
   bossMap,
   fetchGuilds,
-  combatLevel
-} = require("./utilities")
-const sub = require("date-fns/sub")
-const Player = require('./models/player')
-const Compare = require('./models/compare')
+  combatLevel,
+} = require("./utilities");
+const sub = require("date-fns/sub");
+const Player = require("./models/player");
+const Compare = require("./models/compare");
 const client = require("./client");
+const mongo = require("./db");
 const { db } = require("./firebase");
-const htmlToPng = require("./htmlToPng")
-const { v4: uuid } = require('uuid');
+const htmlToPng = require("./htmlToPng");
+const { v4: uuid } = require("uuid");
 
 /**
  * Main app function
  */
 const main = async function main() {
   // instantiate child logger for occurence with instance id
-  const childLogger = logger.child({ instance: uuid(), layer: "cron" })
+  const childLogger = logger.child({ instance: uuid(), layer: "cron" });
 
-  childLogger.info("main started")
+  childLogger.info("main started");
 
   // fetch users to track
   const users = await fetchAllPlayers();
@@ -88,23 +89,25 @@ const getDBState = async function getDBState(currentStatePlayers) {
 };
 
 const trackNewPlayer = async function trackNewPlayer(item) {
-  await db.collection("players").doc(item.name.toLowerCase()).set({
-      name: item.name,
-      clues: item.clues,
-      bosses: item.bosses,
-      skills: item.skills,
-      createdAt: timestamp()
-  })
+  await mongo.db.collection("players").insertOne({
+    _id: item.name.toLowerCase(),
+    name: item.name,
+    clues: item.clues,
+    bosses: item.bosses,
+    skills: item.skills,
+    updatedAt: new Date(),
+    createdAt: new Date(),
+  });
 };
 
 const transitionState = async function transitionState(data) {
   const { current, previous, name } = data;
-  const currentVersion = "v2" // current history object state
+  const currentVersion = "v2"; // current history object state
   let players = db.collection("players").doc(name.toLowerCase());
   let history = db.collection("history").doc(name.toLowerCase());
 
   // share the timestamp across these updates
-  const time = timestamp()
+  const time = timestamp();
 
   /**
    * Updates skills in players document
