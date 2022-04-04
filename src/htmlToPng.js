@@ -177,7 +177,7 @@ module.exports = async (channel, players = null) => {
         content
     })
 
-    const dateAndTime = getTime("MM-DD-YYYY hh-mm A (z)") // MM-DD-YYYY hh-mm aa (O)
+    const dateAndTime = getTime("MM-DD-YYYY hh-mm A (z)")
 
     const file = new MessageAttachment(image, `OSRS Player Update ${dateAndTime}.png`);
 
