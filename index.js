@@ -1,6 +1,7 @@
 require("dotenv").config(); // initialize dotenv
 const tracer = require('dd-trace').init();
 const logger = require("./logger")
+const mongo = require("./src/db")
 const { v4: uuid } = require('uuid');
 const client = require("./src/client")
 const { fetchGuilds } = require("./src/utilities")
@@ -20,6 +21,8 @@ const cronTime = (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : `0
  */
 client.on("ready", async () => {
   logger.info(`Logged in as ${client.user.tag}!`);
+  // launch db Connection
+  await mongo.init()
   // launch the bot's functionality
   boot()
 });
