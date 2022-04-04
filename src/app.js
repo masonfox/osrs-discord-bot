@@ -10,7 +10,6 @@ const {
   fetchGuilds,
   combatLevel,
 } = require("./utilities");
-const sub = require("date-fns/sub");
 const Player = require("./models/player");
 const Compare = require("./models/compare");
 const client = require("./client");

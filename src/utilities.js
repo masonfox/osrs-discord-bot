@@ -3,6 +3,15 @@ const mongo = require("./db")
 const path = require("path")
 const fs = require('fs')
 var FieldValue = require("firebase-admin").firestore.FieldValue;
+const dayjs = require("dayjs")
+const advancedFormat = require('dayjs/plugin/advancedFormat')
+var utc = require('dayjs/plugin/utc')
+var timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
+
+// Dayjs library extensions
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.extend(advancedFormat)
 
 /**
  * Returns the input string as title case
@@ -145,4 +154,12 @@ exports.bossMap = function bossMap(bossName) {
   }
   
   return map[bossName]
+}
+
+exports.getTime = function getTime (format = "hh:mm a (z)") {
+  return dayjs().format(format)
+}
+
+exports.addTimeFromNow = function addTimeFromNow (value, length, format = "hh:mm a (z)") {
+  return dayjs().add(value, length).format(format)
 }

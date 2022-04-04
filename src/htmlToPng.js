@@ -1,7 +1,6 @@
 const { MessageAttachment } = require("discord.js");
 const nodeHtmlToImage = require("node-html-to-image");
-const { getResource } = require("./utilities")
-const formatInTimeZone = require("date-fns-tz/formatInTimeZone")
+const { getResource, getTime } = require("./utilities")
 
 module.exports = async (channel, players = null) => {
     if(!players) throw new Error("User sections are required for image creation")
@@ -178,10 +177,10 @@ module.exports = async (channel, players = null) => {
         content
     })
 
-    const dateAndTime = formatInTimeZone(new Date(), "America/New_York", "MM-dd-yyyy hh-mm aa (O)")
+    const dateAndTime = getTime("MM-DD-YYYY hh-mm A (z)") // MM-DD-YYYY hh-mm aa (O)
 
-  const file = new MessageAttachment(image, `OSRS Player Update ${dateAndTime}.png`);
+    const file = new MessageAttachment(image, `OSRS Player Update ${dateAndTime}.png`);
 
-  // fire
-  channel.send({ files: [file] });
+    // fire
+    channel.send({ files: [file] });
 };

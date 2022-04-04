@@ -4,15 +4,13 @@ const logger = require("./logger")
 const mongo = require("./src/db")
 const { v4: uuid } = require('uuid');
 const client = require("./src/client")
-const { fetchGuildCount } = require("./src/utilities")
+const { fetchGuildCount, getTime, addTimeFromNow } = require("./src/utilities")
 const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when, rebase, donate } = require("./src/commands")
 const app = require("./src/app");
-const formatInTimeZone = require("date-fns-tz/formatInTimeZone")
-const add = require("date-fns/add")
 var cron = require('node-cron');
 
 let cronRuns = 1
-let nextRun = new Date() 
+let nextRun = getTime()
 let cronFrequency = 2 // hours
 const cronTime = (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : `0 */${cronFrequency} * * *`; // 30 seconds or 3 hours
 
@@ -107,7 +105,8 @@ client.on("messageCreate", async (msg) => {
  * Handles setting and announcing the time the cron will run again
  */
 function updateNextRun () {
-  nextRun = formatInTimeZone(add(new Date(), { hours: cronFrequency }), "America/New_York", "hh:mm aa (O)")
+  // nextRun = formatInTimeZone(add(new Date(), { hours: cronFrequency }), "America/New_York", "hh:mm aa (O)")
+  nextRun = addTimeFromNow(cronFrequency, "hour")
   logger.info(`Next update at: ${nextRun}`)
 }
 
