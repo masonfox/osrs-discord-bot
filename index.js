@@ -4,7 +4,7 @@ const logger = require("./logger")
 const mongo = require("./src/db")
 const { v4: uuid } = require('uuid');
 const client = require("./src/client")
-const { fetchGuilds } = require("./src/utilities")
+const { fetchGuildCount } = require("./src/utilities")
 const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when, rebase, donate } = require("./src/commands")
 const app = require("./src/app");
 const formatInTimeZone = require("date-fns-tz/formatInTimeZone")
@@ -31,8 +31,8 @@ client.on("ready", async () => {
  * Boots the application
  */
 async function boot() {
-  const guilds = await fetchGuilds(true)
-  logger.info(`${guilds.length} guilds are subscribed to updates!`)
+  const guildCount = await fetchGuildCount(true)
+  logger.info(`${guildCount} guilds are subscribed to updates!`)
   // fire app logic
   app.main()
   // increment count

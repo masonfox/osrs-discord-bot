@@ -40,13 +40,23 @@ exports.fetchAllPlayers = async function fetchPlayers() {
  * @returns {array} of guilds docs
  */
  exports.fetchGuilds = async function fetchGuilds(subscribed = false) {
-  let snapshot = null;
   if (subscribed) {
-    snapshot = await db.collection("guilds").where("subscribed", "=", true).get()
+    return mongo.db.collection("guilds").find({ subscribed: true }).toArray()
   } else {
-    snapshot = await db.collection("guilds").get()
+    return await mongo.db.collection("guilds").find().toArray()
   }
-  return snapshot.docs.map((doc) => doc.data())
+}
+
+/**
+ * Retrieve all of the guilds stored in the DB
+ * @returns {array} of guilds docs
+ */
+ exports.fetchGuildCount = async function fetchGuildCount(subscribed = false) {
+  if (subscribed) {
+    return mongo.db.collection("guilds").count({ subscribed: true })
+  } else {
+    return await mongo.db.collection("guilds").count()
+  }
 }
 
 /**
