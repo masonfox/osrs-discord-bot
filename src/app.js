@@ -34,19 +34,26 @@ const main = async function main() {
   // retrieve and format data from OSRS API
   const currentPlayerState = await getRSData(users);
 
-  // returns consolidated player compare state for those who are eligble
+  // // returns consolidated player compare state for those who are eligble
   const progressedPlayers = await getDBState(currentPlayerState);
 
   if (progressedPlayers.length > 0) {
-      // log player progressions
-      progressedPlayers.forEach((player) => {childLogger.info(`Player progressed: ${player.name}`, {name: player.name, ...player.current, ...player.previous, variance: player.results})})
+    // log player progressions
+    progressedPlayers.forEach((player) => {
+      childLogger.info(`Player progressed: ${player.name}`, {
+        name: player.name,
+        ...player.current,
+        ...player.previous,
+        variance: player.results,
+      });
+    });
 
-      const withMessages = constructMessage(progressedPlayers);
-      childLogger.info("Messages created")
-      await sendMessages(withMessages)
-    } else {
-      childLogger.info("No tracked players eligble for updates")
-      return [];
+    const withMessages = constructMessage(progressedPlayers);
+    childLogger.info("Messages created");
+    await sendMessages(withMessages);
+  } else {
+    childLogger.info("No tracked players eligble for updates");
+    return [];
   }
 };
 
@@ -58,9 +65,11 @@ const main = async function main() {
 const getRSData = async function getRSData(players) {
   return Promise.all(
     players.map(async (playerObj) => {
-      const { skills, bosses, clues } = await hiscores.getPlayer(playerObj.name);
+      const { skills, bosses, clues } = await hiscores.getPlayer(
+        playerObj.name
+      );
 
-      return new Player(playerObj.name, skills, bosses, clues)
+      return new Player(playerObj.name, skills, bosses, clues);
     })
   );
 };
@@ -69,14 +78,15 @@ const getDBState = async function getDBState(currentStatePlayers) {
   const filtered = [];
 
   for (let player of currentStatePlayers) {
-    let doc = await db.collection("players").doc(player.name.toLowerCase()).get();
-    if (doc.exists) {
-      let DBState = doc.data()
-      let comparison = new Compare(player, DBState)
+    let doc = await mongo.db
+      .collection("players")
+      .findOne({ _id: player.name.toLowerCase() });
+    if (doc) {
+      let comparison = new Compare(player, doc);
       if (comparison.hasProgressed) {
         // we know one of these sub-levels is now higher, pass it along
         filtered.push(comparison);
-        
+
         // update the db with the latest dataset for this user
         await transitionState(comparison);
       }
@@ -101,48 +111,40 @@ const trackNewPlayer = async function trackNewPlayer(item) {
 };
 
 const transitionState = async function transitionState(data) {
-  const { current, previous, name } = data;
+  const { current, previous, name, results } = data;
   const currentVersion = "v2"; // current history object state
-  let players = db.collection("players").doc(name.toLowerCase());
-  let history = db.collection("history").doc(name.toLowerCase());
 
   // share the timestamp across these updates
-  const time = timestamp();
+  const time = new Date();
 
   /**
    * Updates skills in players document
    */
-  await players.update({
-    skills: current.skills,
-    clues: current.clues,
-    bosses: current.bosses,
-    updatedAt: time,
-  });
+  await mongo.db.collection("players").updateOne(
+    { _id: name.toLowerCase() },
+    {
+      $set: {
+        skills: current.skills,
+        clues: current.clues,
+        bosses: current.bosses,
+        updatedAt: time,
+      },
+    }
+  );
 
   /**
    * Handle updates to history document
    */
-  await history.collection("records").add({
-    version: currentVersion,
+  await mongo.db.collection("history").insertOne({
+    playerId: name.toLowerCase(),
+    name: name,
+    delta: results,
     skills: previous.skills,
     clues: previous.clues,
     bosses: previous.bosses,
     createdAt: time,
+    version: currentVersion,
   });
-  // update the user document
-  await history.set({
-    updatedAt: time,
-  });
-
-  /**
-   * Prune the player's history collection
-   */
-  const records = history.collection("records")
-
-  // delete any not aligned with currentState const
-  records.where("version", "!=", currentVersion).get().then((querySnapshot) => {
-    querySnapshot.forEach((doc) => doc.ref.delete())
-  })
 };
 
 const constructMessage = function constructMessage(data) {
@@ -160,18 +162,21 @@ const constructMessage = function constructMessage(data) {
           <span><b>${record.current.skills.overall}</b> total</span>
         </p>
       </div>
-    `
+    `;
 
     // build skilsl block, if necessary
-    if(record.hasUpdatedSkills) {
+    if (record.hasUpdatedSkills) {
       // open a row
-      block += "<div class='block-row skills'>"
+      block += "<div class='block-row skills'>";
 
       // create individual items
       results.skills.forEach((result) => {
         let { skill, variance, level } = result;
-        record.content[skill] = getResource(skill)
-        let finalBlock = (level == 99) ? `<img src="{{tada}}" class="skill-max"></img>` : `<h3 class="variance">+${variance}</h3>`;
+        record.content[skill] = getResource(skill);
+        let finalBlock =
+          level == 99
+            ? `<img src="{{tada}}" class="skill-max"></img>`
+            : `<h3 class="variance">+${variance}</h3>`;
         // construct skill item
         block += `<div class="block-item">
           <div class="block-main">
@@ -179,22 +184,22 @@ const constructMessage = function constructMessage(data) {
             <h1 level="${level}" class="value">${level}</h1>
             ${finalBlock}
           </div>
-        </div>`
+        </div>`;
       });
 
       // end skill row
-      block += "</div>"
+      block += "</div>";
     }
 
     // build clues block, if necessary
-    if(record.hasUpdatedClues) {
+    if (record.hasUpdatedClues) {
       // open a row
-      block += "<div class='block-row clues'>"
+      block += "<div class='block-row clues'>";
 
       results.clues.forEach((result) => {
         let { clueType, score, variance } = result;
-        let iconName = `clue_${clueType}`
-        record.content[iconName] = getResource(iconName)
+        let iconName = `clue_${clueType}`;
+        record.content[iconName] = getResource(iconName);
         // construct clue item
         block += `<div class="block-item">
           <div class="block-main">
@@ -203,21 +208,21 @@ const constructMessage = function constructMessage(data) {
             <h3 class="variance">+${variance}</h3>
           </div>
           <small>(${titleCase(clueType)})</small>
-        </div>`
-      })
+        </div>`;
+      });
 
       // end clues row
-      block += "</div>"
+      block += "</div>";
     }
 
     // build boss block, if necessary
-    if(record.hasUpdatedBosses) {
+    if (record.hasUpdatedBosses) {
       // open a row
-      block += "<div class='block-row bosses'>"
+      block += "<div class='block-row bosses'>";
 
       results.bosses.forEach((result) => {
         let { boss, score, variance } = result;
-        record.content[bossMap(boss)] = getResource(bossMap(boss))
+        record.content[bossMap(boss)] = getResource(bossMap(boss));
         // construct clue item
         block += `<div class="block-item">
           <div class="block-main">
@@ -226,17 +231,15 @@ const constructMessage = function constructMessage(data) {
             <h3 class="variance">+${variance}</h3>
           </div>
           <small>(${boss})</small>
-        </div>`
-      })
+        </div>`;
+      });
 
       // end bosses row
-      block += "</div>"
+      block += "</div>";
     }
 
     // close the overall block
-    block += "</div>"
-
-    // console.log(block)
+    block += "</div>";
 
     record.renderBlock = block;
   });
@@ -245,23 +248,22 @@ const constructMessage = function constructMessage(data) {
 };
 
 const sendMessages = async function sendMessages(players) {
-  const guilds = await fetchGuilds(true)
+  const guilds = await fetchGuilds(true);
 
   guilds.forEach(async (guildObj) => {
-    let guild = await client.guilds.fetch(guildObj.guildId)
-    let channel = await client.channels.fetch(guildObj.channelId)
+    let channel = await client.channels.fetch(guildObj.channelId);
 
     let guildPlayers = players.filter((player) => {
-      return guildObj.players.includes(player.name.toLowerCase())
-    })
+      return guildObj.players.includes(player.name.toLowerCase());
+    });
 
     // only generate a response for servers where players they track progressed
-    if(guildPlayers.length > 0) {
+    if (guildPlayers.length > 0) {
       // prepare, transform, and send image to channel
-      htmlToPng(channel, guildPlayers)
+      htmlToPng(channel, guildPlayers);
     }
-  })
-}
+  });
+};
 
 module.exports = {
   main,
@@ -269,5 +271,5 @@ module.exports = {
   // getCurrentState,
   trackNewPlayer,
   transitionState,
-  constructMessage
+  constructMessage,
 };
