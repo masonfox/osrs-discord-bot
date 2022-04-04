@@ -29,7 +29,7 @@ exports.titleCase = function titleCase(str) {
  * @returns {array} of players
  */
 exports.fetchAllPlayers = async function fetchPlayers() {
-  return mongo.db.collection("players").find().toArray();
+  return await mongo.db.collection("players").find().toArray();
 };
 
 /**
@@ -47,7 +47,7 @@ exports.fetchAllPlayers = async function fetchPlayers() {
  */
  exports.fetchGuilds = async function fetchGuilds(subscribed = false) {
   if (subscribed) {
-    return mongo.db.collection("guilds").find({ subscribed: true }).toArray()
+    return await mongo.db.collection("guilds").find({ subscribed: true }).toArray()
   } else {
     return await mongo.db.collection("guilds").find().toArray()
   }
@@ -59,7 +59,7 @@ exports.fetchAllPlayers = async function fetchPlayers() {
  */
  exports.fetchGuildCount = async function fetchGuildCount(subscribed = false) {
   if (subscribed) {
-    return mongo.db.collection("guilds").count({ subscribed: true })
+    return await mongo.db.collection("guilds").count({ subscribed: true })
   } else {
     return await mongo.db.collection("guilds").count()
   }
