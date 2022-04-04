@@ -1,6 +1,9 @@
 const { fetchGuildPlayers } = require("../utilities")
 const mongo = require("../db")
 const dayjs = require("dayjs")
+const relativeTime = require('dayjs/plugin/relativeTime')
+
+dayjs.extend(relativeTime)
 
 /**
  * List all of the active players being tracked
@@ -22,7 +25,7 @@ module.exports = async function list(msg) {
         let message = "Here are all of the players you're tracking and when they were last updated:\n";
 
         players.forEach((player, index) => {
-            message += `> - **${player.name}** - ${dayjs(player.updatedAt).format("MM/DD/YYYY")}`
+            message += `> - **${player.name}** - ${dayjs(player.updatedAt).fromNow()}`
             if ((players.length - 1) !== index) message += "\n"
         })
 
