@@ -22,8 +22,7 @@ exports.titleCase = function titleCase(str) {
  * @returns {array} of players
  */
 exports.fetchAllPlayers = async function fetchPlayers() {
-  const snapshot = await db.collection("players").get();
-  return snapshot.docs.map((doc) => doc.data());
+  return mongo.db.collection("players").find().toArray();
 };
 
 /**
