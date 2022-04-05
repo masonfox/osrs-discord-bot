@@ -147,9 +147,9 @@ exports.bossMap = function bossMap(bossName) {
 }
 
 exports.getTime = function getTime (format = "hh:mm a (z)") {
-  return dayjs().format(format)
+  return dayjs.utc().tz("America/New_York").format(format)
 }
 
 exports.addTimeFromNow = function addTimeFromNow (value, length, format = "hh:mm a (z)") {
-  return dayjs().add(value, length).format(format)
+  return dayjs.utc().add(value, length).tz("America/New_York").format(format)
 }
