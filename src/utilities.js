@@ -1,7 +1,15 @@
-const { db } = require("./firebase");
+const mongo = require("./db")
 const path = require("path")
 const fs = require('fs')
-var FieldValue = require("firebase-admin").firestore.FieldValue;
+const dayjs = require("dayjs")
+const advancedFormat = require('dayjs/plugin/advancedFormat')
+var utc = require('dayjs/plugin/utc')
+var timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
+
+// Dayjs library extensions
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.extend(advancedFormat)
 
 /**
  * Returns the input string as title case
@@ -21,8 +29,7 @@ exports.titleCase = function titleCase(str) {
  * @returns {array} of players
  */
 exports.fetchAllPlayers = async function fetchPlayers() {
-  const snapshot = await db.collection("players").get();
-  return snapshot.docs.map((doc) => doc.data());
+  return await mongo.db.collection("players").find().toArray();
 };
 
 /**
@@ -30,8 +37,8 @@ exports.fetchAllPlayers = async function fetchPlayers() {
  * @returns {array} of players
  */
  exports.fetchGuildPlayers = async function fetchGuildPlayers(guildId) {
-  const doc = await db.collection("guilds").doc(guildId).get();
-  return doc.data().players;
+  const guild = await mongo.db.collection("guilds").findOne({ _id: guildId });
+  return (guild) ? guild.players : []
 };
 
 /**
@@ -39,21 +46,23 @@ exports.fetchAllPlayers = async function fetchPlayers() {
  * @returns {array} of guilds docs
  */
  exports.fetchGuilds = async function fetchGuilds(subscribed = false) {
-  let snapshot = null;
   if (subscribed) {
-    snapshot = await db.collection("guilds").where("subscribed", "=", true).get()
+    return await mongo.db.collection("guilds").find({ subscribed: true }).toArray()
   } else {
-    snapshot = await db.collection("guilds").get()
+    return await mongo.db.collection("guilds").find().toArray()
   }
-  return snapshot.docs.map((doc) => doc.data())
 }
 
 /**
- * Retrieve current server time from FB for timestamps
- * @returns {timestamp}
+ * Retrieve all of the guilds stored in the DB
+ * @returns {array} of guilds docs
  */
-exports.timestamp = function timestamp() {
-  return FieldValue.serverTimestamp()
+ exports.fetchGuildCount = async function fetchGuildCount(subscribed = false) {
+  if (subscribed) {
+    return await mongo.db.collection("guilds").count({ subscribed: true })
+  } else {
+    return await mongo.db.collection("guilds").count()
+  }
 }
 
 /**
@@ -135,4 +144,12 @@ exports.bossMap = function bossMap(bossName) {
   }
   
   return map[bossName]
+}
+
+exports.getTime = function getTime (format = "hh:mm a (z)") {
+  return dayjs().format(format)
+}
+
+exports.addTimeFromNow = function addTimeFromNow (value, length, format = "hh:mm a (z)") {
+  return dayjs().add(value, length).format(format)
 }
