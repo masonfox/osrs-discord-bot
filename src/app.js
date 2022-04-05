@@ -84,7 +84,12 @@ const getDBState = async function getDBState(currentStatePlayers) {
         filtered.push(comparison);
 
         // update the db with the latest dataset for this user
-        await transitionState(comparison);
+        console.log(process.env.PERSIST_PLAYER_UPDATES, typeof process.env.PERSIST_PLAYER_UPDATES)
+        if (process.env.PERSIST_PLAYER_UPDATES == "true") {
+          await transitionState(comparison);
+        } else {
+          console.info("Not persisting updates")
+        }
       }
     } else {
       await trackNewPlayer(item);
