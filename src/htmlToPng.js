@@ -63,17 +63,12 @@ module.exports = async (channel, players = null) => {
             .app {
                 background: url(https://www.runescape.com/img/rsp777/scroll/backdrop_745.gif);
                 background-size: 375px;
-                padding: 15px 15px;
+                padding: 15px 17px;
             }
 
             h1, h2, h3, h4, h5, h6, p {
                 margin: 0;
                 padding: 0;
-            }
-
-            .player-name {
-                color: #7B4F17;
-                text-shadow: 1px 1px 1px #000000;
             }
 
             .player-header {
@@ -82,23 +77,26 @@ module.exports = async (channel, players = null) => {
                 flex-wrap: no-wrap;
                 justify-content: space-between;
                 padding-right: 5px;
+                margin-bottom: .75rem;
             }
 
             .player-header .player-name {
                 font-size: 1.6rem;
-                margin-bottom: .65rem;
+                color: #7B4F17;
+                text-shadow: 1px 1px 1px #000000;
+                white-space: nowrap;
+            }
+
+            .player-header .player-name[bigName="true"] {
+                font-size: 1.3rem;
             }
 
             .player-header .player-levels {
-                position: relative;
-                top: -3px;
                 font-size: 15px;
                 white-space: nowrap;
             }
 
             .player-header .spacer {
-                position: relative;
-                top: -3px;
                 background: #8e6d44;
                 height: 2px;
                 width: 100%;
@@ -109,16 +107,22 @@ module.exports = async (channel, players = null) => {
                 color: #000;
             }
 
-            .user-block {
+            .user-container {
                 margin: 1.5rem 0;
                 width: 100%;
             }
 
-            .block-row {
+            .grid {
                 display: grid;
                 grid-gap: 10px;
                 grid-template-columns: repeat(3, minmax(0, 1fr));
                 margin-bottom: 1rem;
+            }
+
+            .block-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
 
             .block-main {
@@ -154,7 +158,7 @@ module.exports = async (channel, players = null) => {
                 margin-right: .5rem;
             }
 
-            .bosses .skill-icon {
+            .block-item.boss .skill-icon {
                 margin-right: .15rem;
             }
             
@@ -163,6 +167,7 @@ module.exports = async (channel, players = null) => {
                 text-align: center;
                 color: #512e06;
                 font-size: 12px;
+                margin-top: 3px;
             }
             </style>
         </head>

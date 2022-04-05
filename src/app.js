@@ -153,9 +153,9 @@ const constructMessage = function constructMessage(data) {
     const { name, results } = record;
 
     // create the base container that everything will nest inside
-    let block = `<div class="user-block">
+    let block = `<div class="user-container">
       <div class="player-header">
-        <h1 class="player-name">${name}</h1>
+        <h1 bigName="${(name.length > 8) ? true : false}" class="player-name">${name}</h1>
         <span class="spacer"></span>
         <p class="player-levels">
           <span><b>${combatLevel(record.current.skills)}</b> combat</span>
@@ -165,10 +165,11 @@ const constructMessage = function constructMessage(data) {
       </div>
     `;
 
-    // build skilsl block, if necessary
+    // create the base grid container
+    block += "<div class='grid'>"
+
+    // if necessary, build skill grid items
     if (record.hasUpdatedSkills) {
-      // open a row
-      block += "<div class='block-row skills'>";
 
       // create individual items
       results.skills.forEach((result) => {
@@ -178,8 +179,8 @@ const constructMessage = function constructMessage(data) {
           level == 99
             ? `<img src="{{tada}}" class="skill-max"></img>`
             : `<h3 class="variance">+${variance}</h3>`;
-        // construct skill item
-        block += `<div class="block-item">
+        // construct skill grid item
+        block += `<div class="block-item skill">
           <div class="block-main">
             <img src="{{${skill}}}" class="skill-icon">
             <h1 level="${level}" class="value">${level}</h1>
@@ -187,22 +188,17 @@ const constructMessage = function constructMessage(data) {
           </div>
         </div>`;
       });
-
-      // end skill row
-      block += "</div>";
     }
 
-    // build clues block, if necessary
+    // if necessary, build clue grid items
     if (record.hasUpdatedClues) {
-      // open a row
-      block += "<div class='block-row clues'>";
 
       results.clues.forEach((result) => {
         let { clueType, score, variance } = result;
         let iconName = `clue_${clueType}`;
         record.content[iconName] = getResource(iconName);
-        // construct clue item
-        block += `<div class="block-item">
+        // construct clue grid item
+        block += `<div class="block-item clue">
           <div class="block-main">
             <img src="{{${iconName}}}" class="skill-icon">
             <h1 class="value">${score}</h1>
@@ -211,21 +207,16 @@ const constructMessage = function constructMessage(data) {
           <small>(${titleCase(clueType)})</small>
         </div>`;
       });
-
-      // end clues row
-      block += "</div>";
     }
 
-    // build boss block, if necessary
+    // if necessary, build boss grid items
     if (record.hasUpdatedBosses) {
-      // open a row
-      block += "<div class='block-row bosses'>";
 
       results.bosses.forEach((result) => {
         let { boss, score, variance } = result;
         record.content[bossMap(boss)] = getResource(bossMap(boss));
-        // construct clue item
-        block += `<div class="block-item">
+        // construct boss grid item
+        block += `<div class="block-item boss">
           <div class="block-main">
             <img src="{{${bossMap(boss)}}}" class="skill-icon">
             <h1 class="value">${score}</h1>
@@ -234,14 +225,12 @@ const constructMessage = function constructMessage(data) {
           <small>(${boss})</small>
         </div>`;
       });
-
-      // end bosses row
-      block += "</div>";
     }
 
-    // close the overall block
-    block += "</div>";
+    // close the overall grid container (.grid) for this user and then the whole user block (.user-block)
+    block += "</div></div>";
 
+    // set everything generated above as the renderBlock for this user
     record.renderBlock = block;
   });
 
