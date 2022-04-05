@@ -35,27 +35,28 @@ module.exports = async (channel, players = null) => {
                 width: 375px;
                 min-height: 100%;
                 padding: 10px;
+                position: relative;
             }
 
-            body:before {
+            .app:before {
                 background: url('https://www.runescape.com/img/rsp777/scroll/backdrop_765_top.gif') no-repeat;
-                background-size: 385px;
+                background-size: 390px;
                 content: '';
                 height: 50px;
                 position: absolute;
-                left: 15px;
-                top: 10px;
+                left: 3px;
+                top: 0;
                 width: 100%;
             }
 
-            body:after {
+            .app:after {
                 background: url('https://www.runescape.com/img/rsp777/scroll/backdrop_765_top.gif') no-repeat;
-                background-size: 385px;
+                background-size: 390px;
                 content: '';
                 height: 50px;
                 position: absolute;
-                left: 15px;
-                bottom: -25px;
+                left: 3px;
+                bottom: -20px;
                 width: 100%;
             }
 
@@ -115,8 +116,8 @@ module.exports = async (channel, players = null) => {
 
             .block-row {
                 display: grid;
-                grid-gap: 5px;
-                grid-template-columns: 33.333% 33.333% 33.333%;
+                grid-gap: 10px;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
                 margin-bottom: 1rem;
             }
 
@@ -151,6 +152,10 @@ module.exports = async (channel, players = null) => {
                 height: 30px;
                 width: auto;
                 margin-right: .5rem;
+            }
+
+            .bosses .skill-icon {
+                margin-right: .15rem;
             }
             
             .block-item small {
