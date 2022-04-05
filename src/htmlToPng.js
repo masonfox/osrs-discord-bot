@@ -50,7 +50,7 @@ module.exports = async (channel, players = null) => {
             }
 
             .app:after {
-                background: url('https://www.runescape.com/img/rsp777/scroll/backdrop_765_top.gif') no-repeat;
+                background: url('https://www.runescape.com/img/rsp777/scroll/backdrop_765_bottom.gif') no-repeat;
                 background-size: 390px;
                 content: '';
                 height: 50px;
