@@ -1,24 +1,25 @@
-const { MessageAttachment } = require("discord.js");
+const { MessageAttachment, MessageEmbed } = require("discord.js");
 const nodeHtmlToImage = require("node-html-to-image");
-const { getResource, getTime } = require("./utilities")
+const { getResource, getTime } = require("./utilities");
 
 module.exports = async (channel, players = null) => {
-    if(!players) throw new Error("User sections are required for image creation")
+  if (!players)
+    throw new Error("User sections are required for image creation");
 
-    let block = ""
-    let content = {
-        "tada": getResource("tada")
+  let block = "";
+  let content = {
+    tada: getResource("tada"),
+  };
+
+  players.forEach((player) => {
+    block += player.renderBlock;
+    // flatten player content, unique
+    for (const key in player.content) {
+      if (!content.hasOwnProperty(key)) {
+        content[key] = player.content[key];
+      }
     }
-    
-    players.forEach((player) => {
-        block += player.renderBlock
-        // flatten player content, unique
-        for (const key in player.content) {
-            if (!content.hasOwnProperty(key)) {
-                content[key] = player.content[key]
-            }
-        }
-    })
+  });
 
   const _htmlTemplate = `<!DOCTYPE html>
     <html lang="en">
@@ -29,11 +30,11 @@ module.exports = async (channel, players = null) => {
             <style>
             body {
                 font-family: "Poppins", Arial, Helvetica, sans-serif;
-                background: #36393F;
+                background: #2F3136;
                 color: #fff;
                 width: 375px;
                 min-height: 100%;
-                padding: 12px;
+                padding: 10px;
             }
 
             body:before {
@@ -168,19 +169,29 @@ module.exports = async (channel, players = null) => {
     </html>
     `;
 
-    const image = await nodeHtmlToImage({
-        html: _htmlTemplate,
-        quality: 100,
-        puppeteerArgs: {
-        args: ["--no-sandbox","--disable-setuid-sandbox"],
-        },
-        content
+  const image = await nodeHtmlToImage({
+    html: _htmlTemplate,
+    puppeteerArgs: {
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    },
+    content,
+  });
+
+  const imageTitle = `OSRS-Player-Update.png`;
+
+  const file = new MessageAttachment(image, imageTitle);
+
+  const embed = new MessageEmbed()
+    .setColor("#7B4F17")
+    .setURL("https://www.osrsbuddy.com/")
+    .setAuthor({
+      name: "OSRS Buddy",
+      iconURL: "https://www.osrsbuddy.com/images/osrs-icon.png",
+      url: "https://www.osrsbuddy.com/",
     })
-
-    const dateAndTime = getTime("MM-DD-YYYY hh-mm A (z)")
-
-    const file = new MessageAttachment(image, `OSRS Player Update ${dateAndTime}.png`);
+    .setImage(`attachment://${imageTitle}`)
+    .setTimestamp();
 
     // fire
-    channel.send({ files: [file] });
+    channel.send({ embeds: [embed], files: [file] });
 };
