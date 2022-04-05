@@ -1,4 +1,3 @@
-require("dotenv").config(); // initialize dotenv
 const logger = require("../logger");
 const { hiscores } = require("osrs-json-api");
 const {
