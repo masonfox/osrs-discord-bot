@@ -140,9 +140,9 @@ const transitionState = async function transitionState(data) {
     playerId: name.toLowerCase(),
     name: name,
     delta: results,
-    skills: previous.skills,
-    clues: previous.clues,
-    bosses: previous.bosses,
+    skills: current.skills,
+    clues: current.clues,
+    bosses: current.bosses,
     createdAt: time,
     version: currentVersion,
   });
