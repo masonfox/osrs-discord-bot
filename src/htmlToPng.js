@@ -2,7 +2,7 @@ const { MessageAttachment, MessageEmbed } = require("discord.js");
 const nodeHtmlToImage = require("node-html-to-image");
 const { getResource, getTime } = require("./utilities");
 
-module.exports = async (channel, players = null) => {
+module.exports = async (channel, description = "", fields = [], players = null) => {
   if (!players)
     throw new Error("User sections are required for image creation");
 
@@ -194,6 +194,8 @@ module.exports = async (channel, players = null) => {
   const embed = new MessageEmbed()
     .setColor("#7B4F17")
     .setURL("https://www.osrsbuddy.com/")
+    .setDescription(description)
+    .addFields(...fields)
     .setAuthor({
       name: "OSRS Buddy",
       iconURL: "https://www.osrsbuddy.com/images/osrs-icon.png",

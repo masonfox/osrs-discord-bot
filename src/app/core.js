@@ -1,4 +1,4 @@
-const logger = require("../logger");
+const logger = require("../../logger");
 const { hiscores } = require("osrs-json-api");
 const {
   titleCase,
@@ -7,12 +7,12 @@ const {
   bossMap,
   fetchGuilds,
   combatLevel,
-} = require("./utilities");
-const Player = require("./models/player");
-const Compare = require("./models/compare");
-const client = require("./client");
-const mongo = require("./db");
-const htmlToPng = require("./htmlToPng");
+} = require("../utilities");
+const Player = require("../models/player");
+const Compare = require("../models/compare");
+const client = require("../client");
+const mongo = require("../db");
+const htmlToPng = require("../htmlToPng");
 const { v4: uuid } = require("uuid");
 
 /**
@@ -250,7 +250,7 @@ const sendMessages = async function sendMessages(players) {
     // only generate a response for servers where players they track progressed
     if (guildPlayers.length > 0) {
       // prepare, transform, and send image to channel
-      htmlToPng(channel, guildPlayers);
+      htmlToPng(channel, "Standard bi-hourly progress update", [], guildPlayers);
     }
   });
 };
@@ -258,7 +258,6 @@ const sendMessages = async function sendMessages(players) {
 module.exports = {
   main,
   getRSData,
-  // getCurrentState,
   trackNewPlayer,
   transitionState,
   constructMessage,

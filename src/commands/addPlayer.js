@@ -1,6 +1,6 @@
 const { hiscores } = require("osrs-json-api");
 const mongo = require("../db");
-const app = require("../app");
+const app = require("../app/core");
 
 module.exports = async function addPlayer(msg) {
   let { channel, content, author } = msg;

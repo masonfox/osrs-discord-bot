@@ -25,12 +25,21 @@ exports.titleCase = function titleCase(str) {
 };
 
 /**
- * Retrieve the the players from the DB
+ * Retrieve all the players from the DB
  * @returns {array} of players
  */
 exports.fetchAllPlayers = async function fetchPlayers() {
   return await mongo.db.collection("players").find().toArray();
 };
+
+/**
+ * Retrieve all of the player ID's from the DB
+ * @returns {array} of players
+ */
+exports.fetchAllPlayerIds = async function fetchAllPlayerIds() {
+  let players = await mongo.db.collection("players").find().toArray()
+  return players.map(player => player._id)
+}
 
 /**
  * Retrieve the the players from the DB for a specific guild
@@ -144,6 +153,29 @@ exports.bossMap = function bossMap(bossName) {
   }
   
   return map[bossName]
+}
+
+exports.validateGuild = async function validateGuild(active = false, channel) {
+  const resp = "Hm, this server isn't subscribed yet! Use `!osrs sub` to get started or re-activate!";
+  const guild = await mongo.db
+    .collection("guilds")
+    .findOne({ _id: channel.guild.id });
+
+  if (active) {
+    if (guild && guild?.subscribed == true) {
+      return true;
+    } else {
+      channel.send(resp)
+      return false;
+    }
+  } else {
+    if (guild) {
+      return true;
+    } else {
+      channel.send(resp)
+      return false;
+    }
+  }
 }
 
 exports.getTime = function getTime (format = "hh:mm a (z)") {

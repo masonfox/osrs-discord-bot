@@ -1,5 +1,5 @@
 const { fetchAllPlayers } = require("../utilities");
-const app = require("../app");
+const app = require("../app/core");
 const mongo = require("../db");
 
 const admins = ["397044534988636161"];

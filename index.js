@@ -4,15 +4,19 @@ const logger = require("./logger")
 const mongo = require("./src/db")
 const { v4: uuid } = require('uuid');
 const client = require("./src/client")
-const { fetchGuildCount, getTime, addTimeFromNow } = require("./src/utilities")
-const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when, rebase, donate } = require("./src/commands")
-const app = require("./src/app");
+const { fetchGuildCount, getTime, addTimeFromNow, validateGuild } = require("./src/utilities")
+const { subscribe, unsubscribe, listPlayers, listCommands, addPlayer, removePlayer, statusDump, when, rebase, donate, recapCommand } = require("./src/commands")
+const app = require("./src/app/core");
+const recap = require("./src/app/recap");
 var cron = require('node-cron');
 
 let cronRuns = 1
 let nextRun = getTime()
-let cronFrequency = 2 // hours
-const cronTime = (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : `0 */${cronFrequency} * * *`; // 30 seconds or 3 hours
+const cronTimes = {
+  bihourly: (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : "0 */2 * * *", // 30 seconds or at minute 0 past every 2nd hour
+  weekly: (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : "0 0 * * MON", // 30 seconds or at 00:00 on Monday
+  monthly: (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : "0 0 1 * *" // 30 seconds or at 00:00 on day-of-month 1
+}
 
 /**
  * Ready event handler
@@ -35,14 +39,38 @@ async function boot() {
   app.main()
   // increment count
   updateNextRun()
-  // start cron on schedule
-  cron.schedule(cronTime, () => {
-    logger.info(`The cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
+  
+  /**
+   * Bi-Hourly Cron
+   * This runs the standard update cron every 2 hours
+   */
+  cron.schedule(cronTimes.bihourly, () => {
+    logger.info(`The bihourly cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`)
     // fire app logic
     app.main()
     // increment count
     cronRuns += 1
     updateNextRun()
+  });
+
+  /**
+   * Weekly Cron
+   * This runs the weekly recap cron
+   */
+   cron.schedule(cronTimes.weekly, () => {
+    logger.info(`Executing weekly recap!`)
+    // fire recap logic
+    // recap.main("week")
+  });
+
+  /**
+   * Monthly Cron
+   * This runs the monthly recap cron
+   */
+   cron.schedule(cronTimes.monthly, () => {
+    logger.info(`Executing monthly recap!`)
+    // fire recap logic
+    // recap.main("month")
   });
 }
 
@@ -86,6 +114,9 @@ client.on("messageCreate", async (msg) => {
     addPlayer(msg)
   } else if (content.includes("!osrs remove")) {
     removePlayer(msg)
+  } else if (content.includes("!osrs recap")) {
+    let valid = await validateGuild(true, channel)
+    if (valid) recapCommand(msg)
   } else if (content === "!osrs status") {
     childLogger.info(content)
     statusDump(channel)
@@ -105,8 +136,7 @@ client.on("messageCreate", async (msg) => {
  * Handles setting and announcing the time the cron will run again
  */
 function updateNextRun () {
-  // nextRun = formatInTimeZone(add(new Date(), { hours: cronFrequency }), "America/New_York", "hh:mm aa (O)")
-  nextRun = addTimeFromNow(cronFrequency, "hour")
+  nextRun = addTimeFromNow(2, "hour")
   logger.info(`Next update at: ${nextRun}`)
 }
 
