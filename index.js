@@ -14,8 +14,8 @@ let cronRuns = 1
 let nextRun = getTime()
 const cronTimes = {
   bihourly: (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : "0 */2 * * *", // 30 seconds or at minute 0 past every 2nd hour
-  weekly: (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : "0 0 * * MON", // 30 seconds or at 00:00 on Monday
-  monthly: (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : "0 0 1 * *" // 30 seconds or at 00:00 on day-of-month 1
+  weekly: (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : "5 0 * * MON", // 30 seconds or at 00:05 UTC on Monday
+  monthly: (process.env.NODE_ENV !== "production") ? "*/30 * * * * *" : "5 0 1 * *" // 30 seconds or at 00:05 on day-of-month 1
 }
 
 /**
