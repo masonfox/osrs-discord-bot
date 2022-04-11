@@ -46,6 +46,9 @@ module.exports = class Compare {
             }
         }
 
+        // sort by the highest variance
+        results.sort((a, b) => b.variance - a.variance)
+
         this.results.skills = results
     }
 
@@ -64,6 +67,9 @@ module.exports = class Compare {
             }
         }
 
+        // sort by the highest variance
+        results.sort((a, b) => b.variance - a.variance)
+
         this.results.clues = results
     }
 
@@ -80,6 +86,9 @@ module.exports = class Compare {
                 })
             }
         }
+
+        // sort by the highest variance
+        results.sort((a, b) => b.variance - a.variance)
 
         this.results.bosses = results
     }
