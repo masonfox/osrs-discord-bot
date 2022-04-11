@@ -60,7 +60,7 @@ async function boot() {
    cron.schedule(cronTimes.weekly, () => {
     logger.info(`Executing weekly recap!`)
     // fire recap logic
-    // recap.main("week")
+    recap.main("week")
   });
 
   /**
@@ -70,7 +70,7 @@ async function boot() {
    cron.schedule(cronTimes.monthly, () => {
     logger.info(`Executing monthly recap!`)
     // fire recap logic
-    // recap.main("month")
+    recap.main("month")
   });
 }
 
