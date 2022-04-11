@@ -13,13 +13,11 @@ const main = async function main(timeframe) {
   // prepare
   const final = await recap(players, timeframe)
 
-  console.log(final)
+  // console.log(final)
 
   // send
   if (final.length > 0) {
     await sendRecapMessages(final, timeframe)
-  } else {
-
   }
 }
 
