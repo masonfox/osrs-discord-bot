@@ -6,7 +6,6 @@ const client = require("./src/client");
 const { Collection } = require("discord.js");
 const { validateGuild } = require("./src/utilities");
 const {
-  subscribe,
   unsubscribe,
   listPlayers,
   listCommands,
@@ -73,10 +72,7 @@ client.on("messageCreate", async (msg) => {
     },
   });
 
-  if (content === "!osrs subscribe" || content === "!osrs sub") {
-    childLogger.info("!osrs subscribe");
-    subscribe(channel);
-  } else if (content === "!osrs unsubscribe" || content === "!osrs unsub") {
+  if (content === "!osrs unsubscribe" || content === "!osrs unsub") {
     childLogger.info("!osrs unsubscribe");
     unsubscribe(channel);
   } else if (content === "!osrs" || content === "!osrs help") {

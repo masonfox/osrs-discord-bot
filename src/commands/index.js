@@ -1,4 +1,4 @@
-const { subscribe, unsubscribe } = require("./subscription")
+const { unsubscribe } = require("./subscription")
 
 /**
  * Location to pull in all commands
@@ -9,6 +9,5 @@ exports.addPlayer = require("./addPlayer")
 exports.removePlayer = require("./removePlayer")
 exports.recapCommand = require("./recapCommand")
 exports.when = require("./when")
-exports.subscribe = subscribe
 exports.unsubscribe = unsubscribe
 exports.rebase = require("./rebase")
