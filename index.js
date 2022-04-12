@@ -32,7 +32,7 @@ const commandFiles = fs.readdirSync("./src/slashCommands").filter((file) => file
 
 for (const file of commandFiles) {
   const command = require(`./src/slashCommands/${file}`);
-  console.log(`Command loaded: ${file}`);
+  logger.info(`Command loaded: ${file}`);
   client.commands.set(command.data.name, command);
 }
 

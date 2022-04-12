@@ -1,4 +1,5 @@
 const { MongoClient } = require('mongodb');
+const logger = require('../logger');
 
 if(!process.env.MONGODB_CONNECTION_STRING) throw new Error("MongoDB connection string not provided in .env!")
 
@@ -12,7 +13,7 @@ class Mongo {
     }
     async init() {
       await this.client.connect();
-      console.log('MongoDB Connected');
+      logger.info('MongoDB Connected');
   
       this.db = this.client.db(dbName);
     }
