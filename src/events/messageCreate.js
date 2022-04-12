@@ -1,3 +1,4 @@
+const logger = require("../../logger");
 const client = require("../client")
 
 module.exports = {
@@ -15,7 +16,7 @@ module.exports = {
     if (!cmd.startsWith("!osrs")) return;
     //Get the command from the commands collection and then if the command is found run the command file
     let commandfile = client.commands.get(args[0]);
-    console.log(commandfile)
-    if (commandfile) commandfile.execute(message, args);
+    logger.info(`Command file attempted through message: ${commandfile}`)
+    // if (commandfile) commandfile.execute(message, args);
   },
 };
