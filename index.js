@@ -103,9 +103,6 @@ client.on("messageCreate", async (msg) => {
   } else if (content === "!osrs rebase") {
     childLogger.info(content);
     rebase(msg);
-  } else if (content === "!osrs donate") {
-    childLogger.info(content);
-    donate(channel);
   }
 });
 

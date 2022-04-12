@@ -13,4 +13,3 @@ exports.when = require("./when")
 exports.subscribe = subscribe
 exports.unsubscribe = unsubscribe
 exports.rebase = require("./rebase")
-exports.donate = require("./donate")
