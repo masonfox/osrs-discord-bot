@@ -1,17 +1,26 @@
+const logger = require("../../logger");
 const client = require("../client")
 
 module.exports = {
   name: "interactionCreate",
   once: false,
   async execute(interaction) {
-    if (!interaction.isCommand()) return;
+    if (!(interaction.isCommand() || interaction.isSelectMenu())) return;
 
-    const command = client.commands.get(interaction.commandName);
+    const commandName = (interaction.isSelectMenu()) ? interaction.message.interaction.commandName : interaction.commandName
+    
+    logger.info(`Command executed: ${commandName}`)
+
+    const command = client.commands.get(commandName);
 
     if (!command) return;
 
     try {
-      await command.execute(interaction);
+      if (interaction.isSelectMenu()) {
+        await command.handler(interaction, interaction.customId)
+      } else {
+        await command.execute(interaction)
+      }
     } catch (error) {
       console.error(error);
       await interaction.reply({
