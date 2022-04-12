@@ -12,10 +12,8 @@ const {
   listCommands,
   addPlayer,
   removePlayer,
-  statusDump,
   when,
   rebase,
-  donate,
   recapCommand,
 } = require("./src/commands");
 
@@ -94,9 +92,6 @@ client.on("messageCreate", async (msg) => {
   } else if (content.includes("!osrs recap")) {
     let valid = await validateGuild(true, channel);
     if (valid) recapCommand(msg);
-  } else if (content === "!osrs status") {
-    childLogger.info(content);
-    statusDump(channel);
   } else if (content === "!osrs when") {
     childLogger.info(content);
     when(channel, nextRun);
