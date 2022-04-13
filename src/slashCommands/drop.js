@@ -2,12 +2,10 @@ const { SlashCommandBuilder } = require("@discordjs/builders");
 const { MessageActionRow, MessageSelectMenu } = require("discord.js");
 const {
   fetchGuildById,
-  fetchPlayerById,
   fetchGuildPlayers,
 } = require("../utilities");
 const logger = require("../../logger");
 const client = require("../client");
-const app = require("../app/core");
 const mongo = require("../db");
 
 exports.data = new SlashCommandBuilder()
