@@ -9,7 +9,7 @@ exports.data = new SlashCommandBuilder()
 
 exports.execute = async (interaction) => {
     const textChannels = client.channels.cache.filter((channel) => channel.type === "GUILD_TEXT")
-    channelOptions = textChannels.map((channel) => ({
+    const channelOptions = textChannels.map((channel) => ({
         label: `#${channel.name}`,
         value: channel.id
     }))
