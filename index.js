@@ -8,7 +8,6 @@ const { validateGuild } = require("./src/utilities");
 const {
   listPlayers,
   listCommands,
-  removePlayer,
   when,
   rebase,
   recapCommand,
@@ -76,8 +75,6 @@ client.on("messageCreate", async (msg) => {
   } else if (content === "!osrs list") {
     childLogger.info(content);
     listPlayers(msg);
-  } else if (content.includes("!osrs remove")) {
-    removePlayer(msg);
   } else if (content.includes("!osrs recap")) {
     let valid = await validateGuild(true, channel);
     if (valid) recapCommand(msg);
