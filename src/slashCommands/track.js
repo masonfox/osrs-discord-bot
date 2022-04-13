@@ -25,6 +25,7 @@ exports.execute = async (interaction) => {
   try {
     await hiscores.getPlayer(rsn);
   } catch (error) {
+    logger.error(error)
     return await interaction.editReply(`I wasn't able to find a player named **${rsn}** in the OSRS hiscores. :/`)
   }
 
@@ -66,7 +67,7 @@ exports.execute = async (interaction) => {
 
     // send success messages
     await interaction.editReply(`**${rsn}** successfully added to your guild's tracking list!`);
-    channel.send(`🎉 ${interaction.user.username} added RSN **${rsn}** to your tracked players list! You can check that list any time with \`/players\`.`)
+    channel.send(`🎉 ${interaction.user.username} added RSN **${rsn}** to your guild's tracked players list! You can check that list any time with \`/players\`.`)
   } else {
     // server isn't subscribed - ask them too
     await interaction.editReply("Hm, this server isn't subscribed yet! Use \`/subscribe\` to get started or re-activate!");
