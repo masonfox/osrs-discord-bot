@@ -51,7 +51,7 @@ exports.execute = async (interaction) => {
     if (!player) {
       // get RS data results and insert the player
       logger.info(`"${rsn}" added to players collection`);
-      await insertNewPlayer(rsnLowered);
+      await insertNewPlayer(rsn);
     }
 
     // update the guild tracking list
