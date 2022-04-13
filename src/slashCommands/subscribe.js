@@ -64,5 +64,9 @@ async function subscribe (interaction) {
         channel.send("This channel is subscribed to OSRS Buddy updates! You can add players to track with \`/track\` and see your current players with \`/players\`!")
     } else {
         interaction.update({ content: `Got it! I've updated your information!`, components: [] })
+        // only if they weren't subscribed, announce it
+        if (record.subscribed == false) {
+            channel.send("This channel is subscribed to OSRS Buddy updates! You can add players to track with \`/track\` and see your current players with \`/players\`!")
+        }
     }
 }
