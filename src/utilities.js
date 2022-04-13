@@ -42,6 +42,15 @@ exports.fetchAllPlayerIds = async function fetchAllPlayerIds() {
 }
 
 /**
+ * Fetch a single player by their id
+ * @param {string} id 
+ * @returns a player db object
+ */
+exports.fetchPlayerById = async (id) => {
+  return await mongo.db.collection("players").findOne({ _id: id })
+}
+
+/**
  * Retrieve the the players from the DB for a specific guild
  * @returns {array} of players
  */
@@ -72,6 +81,15 @@ exports.fetchAllPlayerIds = async function fetchAllPlayerIds() {
   } else {
     return await mongo.db.collection("guilds").count()
   }
+}
+
+/**
+ * Retrieve a guild record by its id
+ * @param {string} guildId 
+ * @returns guild object
+ */
+exports.fetchGuildById = async (guildId) => {
+  return await mongo.db.collection("guilds").findOne({ _id: guildId })
 }
 
 /**
