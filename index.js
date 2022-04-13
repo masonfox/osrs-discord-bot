@@ -6,7 +6,6 @@ const client = require("./src/client");
 const { Collection } = require("discord.js");
 const { validateGuild } = require("./src/utilities");
 const {
-  listPlayers,
   listCommands,
   when,
   rebase,
@@ -72,9 +71,6 @@ client.on("messageCreate", async (msg) => {
   if (content === "!osrs" || content === "!osrs help") {
     childLogger.info("!osrs help");
     listCommands(msg);
-  } else if (content === "!osrs list") {
-    childLogger.info(content);
-    listPlayers(msg);
   } else if (content.includes("!osrs recap")) {
     let valid = await validateGuild(true, channel);
     if (valid) recapCommand(msg);
