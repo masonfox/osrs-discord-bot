@@ -8,7 +8,6 @@ const { validateGuild } = require("./src/utilities");
 const {
   listPlayers,
   listCommands,
-  addPlayer,
   removePlayer,
   when,
   rebase,
@@ -77,8 +76,6 @@ client.on("messageCreate", async (msg) => {
   } else if (content === "!osrs list") {
     childLogger.info(content);
     listPlayers(msg);
-  } else if (content.includes("!osrs add")) {
-    addPlayer(msg);
   } else if (content.includes("!osrs remove")) {
     removePlayer(msg);
   } else if (content.includes("!osrs recap")) {
