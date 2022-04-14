@@ -10,10 +10,10 @@ const deployCommands = require('./src/deployCommands');
  * Read and attach commands to Discord client from the slash-commands folder
  */
 client.commands = new Collection();
-const commandFiles = fs.readdirSync('./src/slashCommands').filter((file) => file.endsWith('.js'));
+const commandFiles = fs.readdirSync('./src/commands').filter((file) => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-  const command = require(`./src/slashCommands/${file}`);
+  const command = require(`./src/commands/${file}`);
   logger.info(`Command loaded: ${file}`);
   client.commands.set(command.data.name, command);
 }
