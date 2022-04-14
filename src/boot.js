@@ -18,7 +18,7 @@ const cronTimes = {
  */
 module.exports = async function boot() {
   // fire app logic
-  // app.main(); // temporary
+  app.main();
 
   /**
    * Bi-Hourly Cron
