@@ -1,19 +1,19 @@
-const logger = require("../logger");
-const app = require("./app/core");
-const recap = require("./app/recap");
-var cron = require("node-cron");
-const { fetchGuildCount, getTime, addTimeFromNow } = require("./utilities");
+const cron = require('node-cron');
+const logger = require('../logger');
+const app = require('./app/core');
+const recap = require('./app/recap');
+const { fetchGuildCount, getTime, addTimeFromNow } = require('./utilities');
 
 // config
 let cronRuns = 1;
 let nextRun = getTime();
 const cronTimes = {
   bihourly:
-    process.env.NODE_ENV !== "production" ? "*/30 * * * * *" : "0 */2 * * *", // 30 seconds or at minute 0 past every 2nd hour
+    process.env.NODE_ENV !== 'production' ? '*/30 * * * * *' : '0 */2 * * *', // 30 seconds or at minute 0 past every 2nd hour
   weekly:
-    process.env.NODE_ENV !== "production" ? "*/30 * * * * *" : "5 0 * * MON", // 30 seconds or at 00:05 UTC on Monday
+    process.env.NODE_ENV !== 'production' ? '*/30 * * * * *' : '5 0 * * MON', // 30 seconds or at 00:05 UTC on Monday
   monthly:
-    process.env.NODE_ENV !== "production" ? "*/30 * * * * *" : "5 0 1 * *", // 30 seconds or at 00:05 on day-of-month 1
+    process.env.NODE_ENV !== 'production' ? '*/30 * * * * *' : '5 0 1 * *', // 30 seconds or at 00:05 on day-of-month 1
 };
 
 /**
@@ -31,7 +31,7 @@ module.exports = async function boot() {
    */
   cron.schedule(cronTimes.bihourly, () => {
     logger.info(
-      `The bihourly cron has run ${cronRuns} time${cronRuns > 1 ? "s" : ""}`
+      `The bihourly cron has run ${cronRuns} time${cronRuns > 1 ? 's' : ''}`,
     );
     // fire app logic
     app.main();
@@ -45,9 +45,9 @@ module.exports = async function boot() {
    * This runs the weekly recap cron
    */
   cron.schedule(cronTimes.weekly, () => {
-    logger.info(`Executing weekly recap!`);
+    logger.info('Executing weekly recap!');
     // fire weekly recap logic
-    recap.main("week")
+    recap.main('week');
   });
 
   /**
@@ -55,16 +55,16 @@ module.exports = async function boot() {
    * This runs the monthly recap cron
    */
   cron.schedule(cronTimes.monthly, () => {
-    logger.info(`Executing monthly recap!`);
+    logger.info('Executing monthly recap!');
     // fire monthly recap logic
-    recap.main("month")
+    recap.main('month');
   });
-}
+};
 
 /**
  * Handles setting and announcing the time the cron will run again
  */
 function updateNextRun() {
-  nextRun = addTimeFromNow(2, "hour");
+  nextRun = addTimeFromNow(2, 'hour');
   logger.info(`Next update at: ${nextRun}`);
 }

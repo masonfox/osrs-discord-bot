@@ -7,9 +7,9 @@ const logger = createLogger({
     new transports.Console({
       format: format.combine(
         format.colorize(),
-        format.simple()
+        format.simple(),
       ),
-    })
+    }),
   ],
 });
 
@@ -19,8 +19,8 @@ if (process.env.NODE_ENV == 'production') {
     host: 'http-intake.logs.datadoghq.com',
     path: `/api/v2/logs?dd-api-key=${process.env.DD_API_KEY}&ddsource=nodejs&service=app&host=heroku`,
     ssl: true,
-    format: format.json()
-  }))
+    format: format.json(),
+  }));
 }
 
-module.exports = logger
+module.exports = logger;

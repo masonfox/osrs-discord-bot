@@ -1,5 +1,6 @@
-const logger = require("../../logger");
-const { hiscores } = require("osrs-json-api");
+const { hiscores } = require('osrs-json-api');
+const { v4: uuid } = require('uuid');
+const logger = require('../../logger');
 const {
   titleCase,
   fetchAllPlayers,
@@ -7,22 +8,21 @@ const {
   bossMap,
   fetchGuilds,
   combatLevel,
-} = require("../utilities");
-const Player = require("../models/player");
-const Compare = require("../models/compare");
-const client = require("../client");
-const mongo = require("../db");
-const htmlToPng = require("../htmlToPng");
-const { v4: uuid } = require("uuid");
+} = require('../utilities');
+const Player = require('../models/player');
+const Compare = require('../models/compare');
+const client = require('../client');
+const mongo = require('../db');
+const htmlToPng = require('../htmlToPng');
 
 /**
  * Main app function
  */
 const main = async function main() {
   // instantiate child logger for occurence with instance id
-  const childLogger = logger.child({ instance: uuid(), layer: "cron" });
+  const childLogger = logger.child({ instance: uuid(), layer: 'cron' });
 
-  childLogger.info("main started");
+  childLogger.info('main started');
 
   // fetch users to track
   const users = await fetchAllPlayers();
@@ -45,10 +45,10 @@ const main = async function main() {
     });
 
     const withMessages = constructMessage(progressedPlayers);
-    childLogger.info("Messages created");
+    childLogger.info('Messages created');
     await sendMessages(withMessages);
   } else {
-    childLogger.info("No tracked players eligble for updates");
+    childLogger.info('No tracked players eligble for updates');
     return [];
   }
 };
@@ -62,33 +62,33 @@ const getRSData = async function getRSData(players) {
   return Promise.all(
     players.map(async (playerObj) => {
       const { skills, bosses, clues } = await hiscores.getPlayer(
-        playerObj.name
+        playerObj.name,
       );
 
       return new Player(playerObj.name, skills, bosses, clues);
-    })
+    }),
   );
 };
 
 const getDBState = async function getDBState(currentStatePlayers) {
   const filtered = [];
 
-  for (let player of currentStatePlayers) {
-    let doc = await mongo.db
-      .collection("players")
+  for (const player of currentStatePlayers) {
+    const doc = await mongo.db
+      .collection('players')
       .findOne({ _id: player.name.toLowerCase() });
     if (doc) {
-      let comparison = new Compare(player, doc);
+      const comparison = new Compare(player, doc);
       if (comparison.hasProgressed) {
         // we know one of these sub-levels is now higher, pass it along
         filtered.push(comparison);
 
         // update the db with the latest dataset for this user
-        console.log(process.env.PERSIST_PLAYER_UPDATES, typeof process.env.PERSIST_PLAYER_UPDATES)
-        if (process.env.PERSIST_PLAYER_UPDATES == "true") {
+        console.log(process.env.PERSIST_PLAYER_UPDATES, typeof process.env.PERSIST_PLAYER_UPDATES);
+        if (process.env.PERSIST_PLAYER_UPDATES == 'true') {
           await transitionState(comparison);
         } else {
-          console.info("Not persisting updates")
+          console.info('Not persisting updates');
         }
       }
     } else {
@@ -100,7 +100,7 @@ const getDBState = async function getDBState(currentStatePlayers) {
 };
 
 const trackNewPlayer = async function trackNewPlayer(item) {
-  await mongo.db.collection("players").insertOne({
+  await mongo.db.collection('players').insertOne({
     _id: item.name.toLowerCase(),
     name: item.name,
     clues: item.clues,
@@ -112,8 +112,10 @@ const trackNewPlayer = async function trackNewPlayer(item) {
 };
 
 const transitionState = async function transitionState(data) {
-  const { current, previous, name, results } = data;
-  const currentVersion = "v2"; // current history object state
+  const {
+    current, previous, name, results,
+  } = data;
+  const currentVersion = 'v2'; // current history object state
 
   // share the timestamp across these updates
   const time = new Date();
@@ -121,7 +123,7 @@ const transitionState = async function transitionState(data) {
   /**
    * Updates skills in players document
    */
-  await mongo.db.collection("players").updateOne(
+  await mongo.db.collection('players').updateOne(
     { _id: name.toLowerCase() },
     {
       $set: {
@@ -130,15 +132,15 @@ const transitionState = async function transitionState(data) {
         bosses: current.bosses,
         updatedAt: time,
       },
-    }
+    },
   );
 
   /**
    * Handle updates to history document
    */
-  await mongo.db.collection("history").insertOne({
+  await mongo.db.collection('history').insertOne({
     playerId: name.toLowerCase(),
-    name: name,
+    name,
     delta: results,
     skills: current.skills,
     clues: current.clues,
@@ -155,7 +157,7 @@ const constructMessage = function constructMessage(data) {
     // create the base container that everything will nest inside
     let block = `<div class="user-container">
       <div class="player-header">
-        <h1 bigName="${(name.length > 8) ? true : false}" class="player-name">${name}</h1>
+        <h1 bigName="${(name.length > 8)}" class="player-name">${name}</h1>
         <span class="spacer"></span>
         <p class="player-levels">
           <span><b>${combatLevel(record.current.skills)}</b> combat</span>
@@ -166,19 +168,17 @@ const constructMessage = function constructMessage(data) {
     `;
 
     // create the base grid container
-    block += "<div class='grid'>"
+    block += "<div class='grid'>";
 
     // if necessary, build skill grid items
     if (record.hasUpdatedSkills) {
-
       // create individual items
       results.skills.forEach((result) => {
-        let { skill, variance, level } = result;
+        const { skill, variance, level } = result;
         record.content[skill] = getResource(skill);
-        let finalBlock =
-          level == 99
-            ? `<img src="{{tada}}" class="skill-max"></img>`
-            : `<h3 class="variance">+${variance}</h3>`;
+        const finalBlock = level == 99
+          ? '<img src="{{tada}}" class="skill-max"></img>'
+          : `<h3 class="variance">+${variance}</h3>`;
         // construct skill grid item
         block += `<div class="block-item skill">
           <div class="block-main">
@@ -192,10 +192,9 @@ const constructMessage = function constructMessage(data) {
 
     // if necessary, build clue grid items
     if (record.hasUpdatedClues) {
-
       results.clues.forEach((result) => {
-        let { clueType, score, variance } = result;
-        let iconName = `clue_${clueType}`;
+        const { clueType, score, variance } = result;
+        const iconName = `clue_${clueType}`;
         record.content[iconName] = getResource(iconName);
         // construct clue grid item
         block += `<div class="block-item clue">
@@ -211,9 +210,8 @@ const constructMessage = function constructMessage(data) {
 
     // if necessary, build boss grid items
     if (record.hasUpdatedBosses) {
-
       results.bosses.forEach((result) => {
-        let { boss, score, variance } = result;
+        const { boss, score, variance } = result;
         record.content[bossMap(boss)] = getResource(bossMap(boss));
         // construct boss grid item
         block += `<div class="block-item boss">
@@ -228,7 +226,7 @@ const constructMessage = function constructMessage(data) {
     }
 
     // close the overall grid container (.grid) for this user and then the whole user block (.user-block)
-    block += "</div></div>";
+    block += '</div></div>';
 
     // set everything generated above as the renderBlock for this user
     record.renderBlock = block;
@@ -241,16 +239,14 @@ const sendMessages = async function sendMessages(players) {
   const guilds = await fetchGuilds(true);
 
   guilds.forEach(async (guildObj) => {
-    let channel = await client.channels.fetch(guildObj.channelId);
+    const channel = await client.channels.fetch(guildObj.channelId);
 
-    let guildPlayers = players.filter((player) => {
-      return guildObj.players.includes(player.name.toLowerCase());
-    });
+    const guildPlayers = players.filter((player) => guildObj.players.includes(player.name.toLowerCase()));
 
     // only generate a response for servers where players they track progressed
     if (guildPlayers.length > 0) {
       // prepare, transform, and send image to channel
-      htmlToPng(channel, "Standard bi-hourly progress update", [], guildPlayers);
+      htmlToPng(channel, 'Standard bi-hourly progress update', [], guildPlayers);
     }
   });
 };

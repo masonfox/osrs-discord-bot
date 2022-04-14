@@ -1,8 +1,8 @@
-const { fetchAllPlayers } = require("../utilities");
-const app = require("../app/core");
-const mongo = require("../db");
+const { fetchAllPlayers } = require('../utilities');
+const app = require('../app/core');
+const mongo = require('../db');
 
-const admins = ["397044534988636161"];
+const admins = ['397044534988636161'];
 
 module.exports = async function rebase(msg) {
   //
@@ -12,9 +12,9 @@ module.exports = async function rebase(msg) {
     const data = await app.getRSData(DBplayers);
     // update
     for (let i = 0; i < data.length; i++) {
-      let player = data[i];
+      const player = data[i];
       // force update DB - TODO: this could probably be insertMany
-      await mongo.db.collection("players").updateOne(
+      await mongo.db.collection('players').updateOne(
         { _id: player.name.toLowerCase() },
         {
           $set: {
@@ -23,12 +23,12 @@ module.exports = async function rebase(msg) {
             skills: player.skills,
             updatedAt: new Date(),
           },
-        }
+        },
       );
     }
-    msg.channel.send("All player data rebased against the hiscore table");
+    msg.channel.send('All player data rebased against the hiscore table');
   } else {
     // denied
-    channel.send("Sorry, you need to be an admin to issue this command");
+    channel.send('Sorry, you need to be an admin to issue this command');
   }
 };

@@ -1,32 +1,30 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const { hiscores } = require("osrs-json-api");
-const { fetchGuildById, fetchPlayerById } = require("../utilities");
-const logger = require("../../logger");
-const client = require("../client");
-const app = require("../app/core");
-const mongo = require("../db");
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { hiscores } = require('osrs-json-api');
+const { fetchGuildById, fetchPlayerById } = require('../utilities');
+const logger = require('../../logger');
+const client = require('../client');
+const app = require('../app/core');
+const mongo = require('../db');
 
 exports.data = new SlashCommandBuilder()
-  .setName("track")
+  .setName('track')
   .setDescription("Add players to your guild's tracking list")
-  .addStringOption((option) =>
-    option
-      .setName("rsn")
-      .setDescription("The OSRS player name")
-      .setRequired(true)
-  );
+  .addStringOption((option) => option
+    .setName('rsn')
+    .setDescription('The OSRS player name')
+    .setRequired(true));
 
 exports.execute = async (interaction) => {
   await interaction.deferReply({ ephemeral: true });
-  const rsn = interaction.options.getString("rsn");
+  const rsn = interaction.options.getString('rsn');
   const rsnLowered = rsn.toLowerCase();
 
   // determine if the player exists in general
   try {
     await hiscores.getPlayer(rsn);
   } catch (error) {
-    logger.error(error)
-    return await interaction.editReply(`I wasn't able to find a player named **${rsn}** in the OSRS hiscores. :/`)
+    logger.error(error);
+    return await interaction.editReply(`I wasn't able to find a player named **${rsn}** in the OSRS hiscores. :/`);
   }
 
   // confirm guild subscription exists
@@ -41,8 +39,7 @@ exports.execute = async (interaction) => {
      * Addition Logic
      */
     // see if they're already tracking this user
-    if (guild.players.includes(rsnLowered)) 
-        return await interaction.editReply(`You're already tracking **${rsn}**! No worries!`);
+    if (guild.players.includes(rsnLowered)) { return await interaction.editReply(`You're already tracking **${rsn}**! No worries!`); }
 
     // see if they already exist in the players collection
     const player = await fetchPlayerById(rsnLowered);
@@ -55,19 +52,19 @@ exports.execute = async (interaction) => {
     }
 
     // update the guild tracking list
-    await mongo.db.collection("guilds").updateOne(
+    await mongo.db.collection('guilds').updateOne(
       { _id: interaction.guildId },
       {
         $addToSet: { players: rsnLowered },
         $set: { updatedAt: new Date() },
-      }
+      },
     );
 
     logger.info(`"${rsn}" now tracked by ${guild.guildName} guild in ${guild.channelName} channel`);
 
     // send success messages
     await interaction.editReply(`**${rsn}** successfully added to your guild's tracking list!`);
-    channel.send(`🎉 ${interaction.user.username} added RSN **${rsn}** to your guild's tracked players list! You can check that list any time with \`/players\`.`)
+    channel.send(`🎉 ${interaction.user.username} added RSN **${rsn}** to your guild's tracked players list! You can check that list any time with \`/players\`.`);
   } else {
     // server isn't subscribed - ask them too
     await interaction.editReply("Hm, this server isn't subscribed yet! Use \`/subscribe\` to get started or re-activate!");
@@ -75,6 +72,6 @@ exports.execute = async (interaction) => {
 };
 
 async function insertNewPlayer(name) {
-    const data = await app.getRSData([{ name }]);
-    await app.trackNewPlayer(data[0]);
+  const data = await app.getRSData([{ name }]);
+  await app.trackNewPlayer(data[0]);
 }

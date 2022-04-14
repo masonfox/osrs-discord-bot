@@ -13,6 +13,7 @@ exports.data = new SlashCommandBuilder()
   .setDescription("Drop/remove players from your guild's tracking list");
 
 exports.execute = async (interaction) => {
+  // TODO: convert this to bring all player objs and include relative updatedAt
   const trackedPlayers = await fetchGuildPlayers(interaction.guildId);
 
   if (trackedPlayers.length == 0)
@@ -28,7 +29,7 @@ exports.execute = async (interaction) => {
 
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()
-      .setCustomId("droppedPlayer")
+      .setCustomId("droppedPlayers")
       .setPlaceholder("Select player(s)")
       .setMinValues(1)
       .setMaxValues(playerOptions.length)
