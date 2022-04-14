@@ -91,8 +91,16 @@ exports.fetchGuildById = async (guildId) => await mongo.db.collection('guilds').
  * @param {string} resourceName
  */
 exports.getResource = function getResource(resourceName) {
-  const iconPath = `${path.join(__dirname, '/resources/icons/') + resourceName}.png`;
-  const image = fs.readFileSync(iconPath);
+  // grab resource, but handle fallback
+  const image = ((name) => {
+    try {
+      const iconPath = `${path.join(__dirname, '/resources/icons/') + name}.png`;
+      return fs.readFileSync(iconPath);
+    } catch (error) {
+      const fallbackPath = `${path.join(__dirname, '/resources/icons/', 'undefined.png')}`;
+      return fs.readFileSync(fallbackPath);
+    }
+  })(resourceName); // auto-execute
   const base64 = new Buffer.from(image).toString('base64');
   return `data:image/png;base64,${base64}`;
 };
