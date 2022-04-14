@@ -70,9 +70,6 @@ client.on('messageCreate', async (msg) => {
   if (content === '!osrs' || content === '!osrs help') {
     childLogger.info('!osrs help');
     listCommands(msg);
-  } else if (content === '!osrs list') {
-    childLogger.info(content);
-    listPlayers(msg);
   } else if (content.includes('!osrs recap')) {
     const valid = await validateGuild(true, channel);
     if (valid) recapCommand(msg);
