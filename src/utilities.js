@@ -120,61 +120,6 @@ exports.combatLevel = function combatLevel(skills) {
   return (isNaN(final)) ? 'Error' : final;
 };
 
-exports.bossMap = function bossMap(bossName) {
-  const map = {
-    'Abyssal Sire': 'abyssal_sire',
-    'Alchemical Hydra': 'alchemical_hydra',
-    'Barrows Chests': 'barrows_chests',
-    Bryophyta: 'bryophyta',
-    Callisto: 'callisto',
-    Cerberus: 'cerberus',
-    'Chambers of Xeric': 'chambers_of_xeric',
-    'Chambers of Xeric: Challenge Mode': 'chambers_of_xeric_challenge_mode',
-    'Chaos Elemental': 'chaos_elemental',
-    'Chaos Fanatic': 'chaos_fanatic',
-    'Commander Zilyana': 'commander_zilyana',
-    'Corporeal Beast': 'corporeal_beast',
-    'Crazy Archaeologist': 'crazy_archaeologist',
-    'Dagannoth Prime': 'dagannoth_prime',
-    'Dagannoth Rex': 'dagannoth_rex',
-    'Dagannoth Supreme': 'dagannoth_supreme',
-    'Deranged Archaeologist': 'deranged_archaeologist',
-    'General Graardor': 'general_graardor',
-    'Giant Mole': 'giant_mole',
-    'Grotesque Guardians': 'grotesque_guardians',
-    Hespori: 'hespori',
-    'Kalphite Queen': 'kalphite_queen',
-    'King Black Dragon': 'king_black_dragon',
-    Kraken: 'kraken',
-    "Kree'Arra": 'kreearra',
-    "K'ril Tsutsaroth": 'kril_tsutsaroth',
-    Mimic: 'mimic',
-    Nex: 'nex',
-    Nightmare: 'nightmare',
-    "Phosani's Nightmare": 'phosanis_nightmare',
-    Obor: 'obor',
-    Sarachnis: 'sarachnis',
-    Scorpia: 'scorpia',
-    Skotizo: 'skotizo',
-    Tempoross: 'tempoross',
-    'The Gauntlet': 'the_gauntlet',
-    'The Corrupted Gauntlet': 'the_corrupted_gauntlet',
-    'Theatre of Blood': 'theatre _of_blood',
-    'Theatre of Blood: Hard Mode': 'theatre _of_blood_hard_mode',
-    'Thermonuclear Smoke Devil': 'thermonuclea_smoke_devil',
-    'TzKal-Zuk': 'tzkal_zuk',
-    'TzTok-Jad': 'tztok_jad',
-    Venenatis: 'venenatis',
-    "Vet'ion": 'vetion',
-    Vorkath: 'vorkath',
-    Wintertodt: 'wintertodt',
-    Zalcano: 'zalcano',
-    Zulrah: 'Zulrah',
-  };
-
-  return map[bossName];
-};
-
 exports.validateGuild = async function validateGuild(active = false, channel) {
   const resp = "Hm, this server isn't subscribed yet! Use `!osrs sub` to get started or re-activate!";
   const guild = await mongo.db
@@ -193,6 +138,61 @@ exports.validateGuild = async function validateGuild(active = false, channel) {
   }
   channel.send(resp);
   return false;
+};
+
+exports.bossMap = function bossMap(bossName) {
+  const map = {
+    abyssalSire: 'Abyssal Sire',
+    alchemicalHydra: 'Alchemical Hydra',
+    barrowsChest: 'Barrows Chests',
+    bryophyta: 'Bryophyta',
+    callisto: 'Callisto',
+    cerberus: 'Cerberus',
+    chambersofXeric: 'Chambers of Xeric',
+    chambersofXericChallengeMode: 'Chambers of Xeric: Challenge Mode',
+    chaosElemental: 'Chaos Elemental',
+    chaosFanatic: 'Chaos Fanatic',
+    commanderZilyana: 'Commander Zilyana',
+    corporealBeast: 'Corporeal Beast',
+    crazyArchaeologist: 'Crazy Archaeologist',
+    dagannothPrime: 'Dagannoth Prime',
+    dagannothRex: 'Dagannoth Rex',
+    dagannothSupreme: 'Dagannoth Supreme',
+    derangedArchaeologist: 'Deranged Archaeologist',
+    generalGraardor: 'General Graardor',
+    giantMole: 'Giant Mole',
+    grotesqueGuardians: 'Grotesque Guardians',
+    hespori: 'Hespori',
+    kalphiteQueen: 'Kalphite Queen',
+    kingBlackDragon: 'King Black Dragon',
+    kraken: 'Kraken',
+    kreeArra: "Kree'Arra",
+    krilTsutsaroth: "K'ril Tsutsaroth",
+    mimic: 'Mimic',
+    nex: 'Nex',
+    nightmare: 'Nightmare',
+    phosanisNightmare: "Phosani's Nightmare",
+    obor: 'Obor',
+    sarachnis: 'Sarachnis',
+    scorpia: 'Scorpia',
+    skotizo: 'Skotizo',
+    tempoross: 'Tempoross',
+    theGauntlet: 'The Gauntlet',
+    theCorruptedGauntlet: 'The Corrupted Gauntlet',
+    theatreofBlood: 'Theatre of Blood',
+    theatreofBloodHard: 'Theatre of Blood: Hard Mode',
+    thermonuclearSmokeDevil: 'Thermonuclear Smoke Devil',
+    tzKalZuk: 'TzKal-Zuk',
+    tzTokJad: 'TzTok-Jad',
+    venenatis: 'Venenatis',
+    vetion: "Vet'ion",
+    vorkath: 'Vorkath',
+    wintertodt: 'Wintertodt',
+    zalcano: 'Zalcano',
+    zulrah: 'Zulrah',
+  };
+
+  return map[bossName];
 };
 
 exports.getTime = function getTime(format = 'hh:mm a (z)') {
