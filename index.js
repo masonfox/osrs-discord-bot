@@ -9,7 +9,6 @@ const { validateGuild } = require('./src/utilities');
 const {
   listCommands,
   rebase,
-  recapCommand,
 } = require('./src/commands');
 
 // NEW
@@ -70,9 +69,6 @@ client.on('messageCreate', async (msg) => {
   if (content === '!osrs' || content === '!osrs help') {
     childLogger.info('!osrs help');
     listCommands(msg);
-  } else if (content.includes('!osrs recap')) {
-    const valid = await validateGuild(true, channel);
-    if (valid) recapCommand(msg);
   } else if (content === '!osrs rebase') {
     childLogger.info(content);
     rebase(msg);
