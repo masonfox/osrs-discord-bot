@@ -31,5 +31,10 @@
     "slash-commands": "^1.5.0",
     "uuid": "^8.3.2",
     "winston": "^3.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0"
   }
 }
