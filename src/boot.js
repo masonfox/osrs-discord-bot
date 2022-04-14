@@ -2,11 +2,8 @@ const cron = require('node-cron');
 const logger = require('../logger');
 const app = require('./app/core');
 const recap = require('./app/recap');
-const { getTime, addTimeFromNow } = require('./utilities');
 
 // config
-let cronRuns = 1;
-let nextRun = getTime();
 const cronTimes = {
   bihourly:
     process.env.NODE_ENV !== 'production' ? '*/30 * * * * *' : '0 */2 * * *', // 30 seconds or at minute 0 past every 2nd hour
@@ -22,20 +19,14 @@ const cronTimes = {
 module.exports = async function boot() {
   // fire app logic
   app.main();
-  // increment count
-  updateNextRun();
 
   /**
    * Bi-Hourly Cron
    * This runs the standard update cron every 2 hours
    */
   cron.schedule(cronTimes.bihourly, () => {
-    logger.info(`The bihourly cron has run ${cronRuns} time${cronRuns > 1 ? 's' : ''}`);
     // fire app logic
     app.main();
-    // increment count
-    cronRuns += 1;
-    updateNextRun();
   });
 
   /**
@@ -58,11 +49,3 @@ module.exports = async function boot() {
     recap.main('month');
   });
 };
-
-/**
- * Handles setting and announcing the time the cron will run again
- */
-function updateNextRun() {
-  nextRun = addTimeFromNow(2, 'hour');
-  logger.info(`Next update at: ${nextRun}`);
-}

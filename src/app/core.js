@@ -8,6 +8,8 @@ const {
   fetchGuilds,
   combatLevel,
   fetchOSRSPlayer,
+  getTime,
+  addTimeFromNow,
   _isEmpty,
 } = require('../utilities');
 const Player = require('../models/player');
@@ -15,6 +17,29 @@ const Compare = require('../models/compare');
 const client = require('../client');
 const mongo = require('../db');
 const htmlToPng = require('../htmlToPng');
+
+/**
+ * Run data
+ */
+const runs = {
+  count: 0,
+  next: getTime(),
+  log() {
+    // adjust count
+    const { count } = this;
+    this.count = count + 1;
+
+    // adjust next
+    const nextRun = addTimeFromNow(2, 'hour');
+    this.next = nextRun;
+
+    // log updates
+    logger.info(`The bi-hourly cron has run ${this.count} time${this.count > 1 ? 's' : ''}`);
+    logger.info(`Next bi-hourly update at: ${this.next}`);
+
+    return this;
+  },
+};
 
 /**
  * Main app function
@@ -50,8 +75,10 @@ const main = async function main() {
     await sendMessages(withMessages);
   } else {
     childLogger.info('No tracked players eligble for updates');
-    return [];
   }
+
+  // stash
+  runs.log();
 };
 
 /**
@@ -252,6 +279,7 @@ const sendMessages = async function sendMessages(players) {
 };
 
 module.exports = {
+  runs,
   main,
   getRSData,
   trackNewPlayer,
