@@ -42,7 +42,6 @@ exports.execute = async (interaction) => {
         // prepare the message
         for (let index = 0; index < players.length; index++) {
             const player = players[index];
-            console.log(player)
             message += `> - **${player.name}** - ${dayjs(player.updatedAt).fromNow()}`
             if ((players.length - 1) !== index) message += "\n"
         }

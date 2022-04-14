@@ -33,15 +33,15 @@ module.exports = class Compare {
   updatedSkills() {
     const results = [];
 
-    for (const [skill, currentSkillLevel] of Object.entries(this.current.skills)) {
+    for (const [skill, currentSkillObj] of Object.entries(this.current.skills)) {
       // localize the previous skill level for comparison
-      const previousSkillLevel = this.previous.skills[skill];
+      const previousSkillObj = this.previous.skills[skill];
       // if the skill isn't the overall item and is greater than the previous value, push it
-      if (currentSkillLevel > previousSkillLevel && skill !== 'overall') {
+      if (currentSkillObj.level > previousSkillObj.level && skill !== 'overall') {
         results.push({
           skill,
-          level: currentSkillLevel,
-          variance: currentSkillLevel - previousSkillLevel,
+          ...currentSkillObj,
+          variance: currentSkillObj.level - previousSkillObj.level,
         });
       }
     }

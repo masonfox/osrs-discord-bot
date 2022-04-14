@@ -1,10 +1,20 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { hiscores } = require('osrs-json-api');
-const { fetchGuildById, fetchPlayerById } = require('../utilities');
+const {
+  fetchGuildById, fetchPlayerById, fetchOSRSPlayer, _isEmpty,
+} = require('../utilities');
 const logger = require('../../logger');
 const client = require('../client');
 const app = require('../app/core');
 const mongo = require('../db');
+
+/**
+ * Get OSRS data and insert into players collection
+ * @param {string} name
+ */
+async function insertNewPlayer(name) {
+  const data = await app.getRSData([{ name }]);
+  await app.trackNewPlayer(data[0]);
+}
 
 exports.data = new SlashCommandBuilder()
   .setName('track')
@@ -20,12 +30,8 @@ exports.execute = async (interaction) => {
   const rsnLowered = rsn.toLowerCase();
 
   // determine if the player exists in general
-  try {
-    await hiscores.getPlayer(rsn);
-  } catch (error) {
-    logger.error(error);
-    return await interaction.editReply(`I wasn't able to find a player named **${rsn}** in the OSRS hiscores. :/`);
-  }
+  const player = await fetchOSRSPlayer(rsn);
+  if (_isEmpty(player)) return interaction.editReply(`I wasn't able to find a player named **${rsn}** in the OSRS hiscores. :/`);
 
   // confirm guild subscription exists
   const guild = await fetchGuildById(interaction.guildId);
@@ -63,15 +69,10 @@ exports.execute = async (interaction) => {
     logger.info(`"${rsn}" now tracked by ${guild.guildName} guild in ${guild.channelName} channel`);
 
     // send success messages
-    await interaction.editReply(`**${rsn}** successfully added to your guild's tracking list!`);
     channel.send(`🎉 ${interaction.user.username} added RSN **${rsn}** to your guild's tracked players list! You can check that list any time with \`/players\`.`);
-  } else {
-    // server isn't subscribed - ask them too
-    await interaction.editReply("Hm, this server isn't subscribed yet! Use \`/subscribe\` to get started or re-activate!");
+    return interaction.editReply(`**${rsn}** successfully added to your guild's tracking list!`);
   }
-};
 
-async function insertNewPlayer(name) {
-  const data = await app.getRSData([{ name }]);
-  await app.trackNewPlayer(data[0]);
-}
+  // server isn't subscribed - ask them too
+  return interaction.editReply("Hm, this server isn't subscribed yet! Use \`/subscribe\` to get started or re-activate!");
+};

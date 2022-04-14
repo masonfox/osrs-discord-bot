@@ -2,7 +2,7 @@ const cron = require('node-cron');
 const logger = require('../logger');
 const app = require('./app/core');
 const recap = require('./app/recap');
-const { fetchGuildCount, getTime, addTimeFromNow } = require('./utilities');
+const { getTime, addTimeFromNow } = require('./utilities');
 
 // config
 let cronRuns = 1;
@@ -30,9 +30,7 @@ module.exports = async function boot() {
    * This runs the standard update cron every 2 hours
    */
   cron.schedule(cronTimes.bihourly, () => {
-    logger.info(
-      `The bihourly cron has run ${cronRuns} time${cronRuns > 1 ? 's' : ''}`,
-    );
+    logger.info(`The bihourly cron has run ${cronRuns} time${cronRuns > 1 ? 's' : ''}`);
     // fire app logic
     app.main();
     // increment count

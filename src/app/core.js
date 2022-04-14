@@ -1,4 +1,3 @@
-const { hiscores } = require('osrs-json-api');
 const { v4: uuid } = require('uuid');
 const logger = require('../../logger');
 const {
@@ -8,6 +7,8 @@ const {
   bossMap,
   fetchGuilds,
   combatLevel,
+  fetchOSRSPlayer,
+  _isEmpty,
 } = require('../utilities');
 const Player = require('../models/player');
 const Compare = require('../models/compare');
@@ -61,11 +62,11 @@ const main = async function main() {
 const getRSData = async function getRSData(players) {
   return Promise.all(
     players.map(async (playerObj) => {
-      const { skills, bosses, clues } = await hiscores.getPlayer(
-        playerObj.name,
-      );
-
-      return new Player(playerObj.name, skills, bosses, clues);
+      const data = await fetchOSRSPlayer(playerObj.name);
+      if (!_isEmpty(data)) {
+        const { skills, bosses, clues } = data;
+        return new Player(playerObj.name, skills, bosses, clues);
+      }
     }),
   );
 };
@@ -84,8 +85,7 @@ const getDBState = async function getDBState(currentStatePlayers) {
         filtered.push(comparison);
 
         // update the db with the latest dataset for this user
-        console.log(process.env.PERSIST_PLAYER_UPDATES, typeof process.env.PERSIST_PLAYER_UPDATES);
-        if (process.env.PERSIST_PLAYER_UPDATES == 'true') {
+        if (process.env.PERSIST_PLAYER_UPDATES === 'true') {
           await transitionState(comparison);
         } else {
           console.info('Not persisting updates');
@@ -113,7 +113,7 @@ const trackNewPlayer = async function trackNewPlayer(item) {
 
 const transitionState = async function transitionState(data) {
   const {
-    current, previous, name, results,
+    current, name, results,
   } = data;
   const currentVersion = 'v2'; // current history object state
 
@@ -162,7 +162,7 @@ const constructMessage = function constructMessage(data) {
         <p class="player-levels">
           <span><b>${combatLevel(record.current.skills)}</b> combat</span>
           <span>/</span>
-          <span><b>${record.current.skills.overall}</b> total</span>
+          <span><b>${record.current.skills.overall.level}</b> total</span>
         </p>
       </div>
     `;
@@ -176,7 +176,7 @@ const constructMessage = function constructMessage(data) {
       results.skills.forEach((result) => {
         const { skill, variance, level } = result;
         record.content[skill] = getResource(skill);
-        const finalBlock = level == 99
+        const finalBlock = level === 99
           ? '<img src="{{tada}}" class="skill-max"></img>'
           : `<h3 class="variance">+${variance}</h3>`;
         // construct skill grid item
@@ -212,15 +212,15 @@ const constructMessage = function constructMessage(data) {
     if (record.hasUpdatedBosses) {
       results.bosses.forEach((result) => {
         const { boss, score, variance } = result;
-        record.content[bossMap(boss)] = getResource(bossMap(boss));
+        record.content[boss] = getResource(boss);
         // construct boss grid item
         block += `<div class="block-item boss">
           <div class="block-main">
-            <img src="{{${bossMap(boss)}}}" class="skill-icon">
+            <img src="{{${boss}}}" class="skill-icon">
             <h1 class="value">${score}</h1>
             <h3 class="variance">+${variance}</h3>
           </div>
-          <small>(${boss})</small>
+          <small>(${bossMap(boss)})</small>
         </div>`;
       });
     }

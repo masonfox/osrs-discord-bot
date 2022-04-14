@@ -6,24 +6,9 @@ const client = require('../client');
 const htmlToPng = require('../htmlToPng');
 const { fetchAllPlayerIds, fetchGuilds, titleCase } = require('../utilities');
 
-const main = async function main(timeframe) {
-  // grab players
-  const players = await fetchAllPlayerIds();
-
-  // prepare
-  const final = await recap(players, timeframe);
-
-  // console.log(final)
-
-  // send
-  if (final.length > 0) {
-    await sendRecapMessages(final, timeframe);
-  }
-};
-
 const recap = async function recap(players, timeframe) {
-  if (typeof players !== 'array') new Error('Players param must be an array');
-  if (!['day', 'week', 'month'].includes(timeframe)) { new Error("Timeframe command must be: 'day', 'week', or 'month'"); }
+  if (!Array.isArray(players)) throw Error('Players param must be an array');
+  if (!['day', 'week', 'month'].includes(timeframe)) { throw Error("Timeframe command must be: 'day', 'week', or 'month'"); }
 
   const date = new Date(dayjs().subtract(1, timeframe));
 
@@ -55,7 +40,7 @@ const recap = async function recap(players, timeframe) {
     ])
     .toArray();
 
-  if (histories.length == 0) return []; // jump out
+  if (histories.length === 0) return []; // jump out
 
   const compared = [];
 
@@ -89,6 +74,23 @@ const sendRecapMessages = async function sendRecapMessages(players, timeframe) {
       // prepare, transform, and send image to channel
       htmlToPng(channel, `**${titleCase(timeframe)}ly** recap!`, [], guildPlayers);
     }
+  }
+};
+
+/**
+ * Sends a recap image for a given timeframe
+ * @param {dateString} timeframe
+ */
+const main = async function main(timeframe) {
+  // grab players
+  const players = await fetchAllPlayerIds();
+
+  // prepare
+  const final = await recap(players, timeframe);
+
+  // send
+  if (final.length > 0) {
+    await sendRecapMessages(final, timeframe);
   }
 };
 

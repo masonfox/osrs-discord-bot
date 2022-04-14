@@ -4,6 +4,7 @@ const dayjs = require('dayjs');
 const advancedFormat = require('dayjs/plugin/advancedFormat');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone'); // dependent on utc plugin
+const { Hiscores } = require('oldschooljs');
 const mongo = require('./db');
 
 // Dayjs library extensions
@@ -22,6 +23,19 @@ exports.titleCase = function titleCase(str) {
     str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
   }
   return str.join(' ');
+};
+
+exports.fetchOSRSPlayer = async function fetchOSRSPlayer(name) {
+  try {
+    const response = await Hiscores.fetch(name);
+    return {
+      skills: response.skills,
+      clues: response.clues,
+      bosses: response.bossRecords,
+    };
+  } catch (error) {
+    return {};
+  }
 };
 
 /**
@@ -111,10 +125,10 @@ exports.getResource = function getResource(resourceName) {
  * @returns combat level, number
  */
 exports.combatLevel = function combatLevel(skills) {
-  const base = 0.25 * (skills.defence + skills.hitpoints + (skills.prayer * 0.5));
-  const melee = 0.325 * (skills.attack + skills.strength);
-  const ranged = 0.325 * (skills.ranged * 1.5);
-  const magic = 0.325 * (skills.magic * 1.5);
+  const base = 0.25 * (skills.defence.level + skills.hitpoints.level + (skills.prayer.level * 0.5));
+  const melee = 0.325 * (skills.attack.level + skills.strength.level);
+  const ranged = 0.325 * (skills.ranged.level * 1.5);
+  const magic = 0.325 * (skills.magic.level * 1.5);
   const max = Math.max(melee, ranged, magic);
   const final = Math.floor(base + max);
   return (isNaN(final)) ? 'Error' : final;
@@ -201,4 +215,8 @@ exports.getTime = function getTime(format = 'hh:mm a (z)') {
 
 exports.addTimeFromNow = function addTimeFromNow(value, length, format = 'hh:mm a (z)') {
   return dayjs.utc().add(value, length).tz('America/New_York').format(format);
+};
+
+exports._isEmpty = function _isEmpty(obj) {
+  return Object.keys(obj).length === 0;
 };
