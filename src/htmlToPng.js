@@ -1,14 +1,13 @@
-const { MessageAttachment, MessageEmbed } = require("discord.js");
-const nodeHtmlToImage = require("node-html-to-image");
-const { getResource, getTime } = require("./utilities");
+const { MessageAttachment, MessageEmbed } = require('discord.js');
+const nodeHtmlToImage = require('node-html-to-image');
+const { getResource, getTime } = require('./utilities');
 
-module.exports = async (channel, description = "", fields = [], players = null) => {
-  if (!players)
-    throw new Error("User sections are required for image creation");
+module.exports = async (channel, description = '', fields = [], players = null) => {
+  if (!players) { throw new Error('User sections are required for image creation'); }
 
-  let block = "";
-  let content = {
-    tada: getResource("tada"),
+  let block = '';
+  const content = {
+    tada: getResource('tada'),
   };
 
   players.forEach((player) => {
@@ -21,7 +20,7 @@ module.exports = async (channel, description = "", fields = [], players = null) 
     }
   });
 
-  const _htmlTemplate = `<!DOCTYPE html>
+  const htmlTemplate = `<!DOCTYPE html>
     <html lang="en">
         <head>
             <meta charset="UTF-8" />
@@ -180,30 +179,30 @@ module.exports = async (channel, description = "", fields = [], players = null) 
     `;
 
   const image = await nodeHtmlToImage({
-    html: _htmlTemplate,
+    html: htmlTemplate,
     puppeteerArgs: {
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     },
     content,
   });
 
-  const imageTitle = `OSRS-Player-Update.png`;
+  const imageTitle = 'OSRS-Player-Update.png';
 
   const file = new MessageAttachment(image, imageTitle);
 
   const embed = new MessageEmbed()
-    .setColor("#7B4F17")
-    .setURL("https://www.osrsbuddy.com/")
+    .setColor('#7B4F17')
+    .setURL('https://www.osrsbuddy.com/')
     .setDescription(description)
     .addFields(...fields)
     .setAuthor({
-      name: "OSRS Buddy",
-      iconURL: "https://www.osrsbuddy.com/images/osrs-icon.png",
-      url: "https://www.osrsbuddy.com/",
+      name: 'OSRS Buddy',
+      iconURL: 'https://www.osrsbuddy.com/images/osrs-icon.png',
+      url: 'https://www.osrsbuddy.com/',
     })
     .setImage(`attachment://${imageTitle}`)
     .setTimestamp();
 
-    // fire
-    channel.send({ embeds: [embed], files: [file] });
+  // fire
+  channel.send({ embeds: [embed], files: [file] });
 };
