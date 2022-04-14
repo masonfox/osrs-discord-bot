@@ -1,8 +1,7 @@
 const { fetchAllPlayers } = require('../utilities');
 const app = require('../app/core');
 const mongo = require('../db');
-
-const admins = ['397044534988636161'];
+const admins = require('./list');
 
 module.exports = async function rebase(msg) {
   //
@@ -29,6 +28,6 @@ module.exports = async function rebase(msg) {
     msg.channel.send('All player data rebased against the hiscore table');
   } else {
     // denied
-    channel.send('Sorry, you need to be an admin to issue this command');
+    msg.channel.send('Sorry, you need to be an admin to issue this command');
   }
 };
