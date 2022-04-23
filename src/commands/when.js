@@ -5,9 +5,7 @@ exports.data = new SlashCommandBuilder()
   .setName('when')
   .setDescription('Shares when the next bi-hourly update will run');
 
-exports.execute = async (interaction) => {
-  await interaction.reply({
-    content: `I will run at: ${runs.next}`,
-    ephemeral: true,
-  });
-};
+exports.execute = async (interaction) => interaction.reply({
+  content: `I will run at: ${runs.next}`,
+  ephemeral: true,
+});

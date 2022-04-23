@@ -26,15 +26,13 @@ exports.execute = async (interaction) => {
   interaction.reply({ content: 'Select a text channel to have updates sent to:', components: [row], ephemeral: true });
 };
 
-exports.handler = async (interaction, id) => {
-  if (id == 'channel') subscribe(interaction);
-};
-
-async function subscribe(interaction) {
+exports.handler = async (interaction, id, logger) => {
   const { guild } = interaction.member;
   const selectedChannelId = interaction.values[0];
   const channel = client.channels.cache.get(selectedChannelId);
   const query = { guildId: guild.id };
+
+  logger.info('Command args', { args: { selectedChannel: { id: channel.id, name: channel.name } } });
 
   // look for any existing config and maintain
   const record = await mongo.db.collection('guilds').findOne(query);
@@ -60,13 +58,20 @@ async function subscribe(interaction) {
 
   // adjust response if the guild is already in the db
   if (!record) {
-    interaction.update({ content: 'You\'re good to go! Use `/track` to add players to your watch list!', components: [] });
-    channel.send('This channel is subscribed to OSRS Buddy updates! You can add players to track with \`/track\` and see your current players with \`/players\`!');
-  } else {
-    interaction.update({ content: 'Got it! I\'ve updated your information!', components: [] });
-    // only if they weren't subscribed, announce it
-    if (record.subscribed == false) {
-      channel.send('This channel is subscribed to OSRS Buddy updates! You can add players to track with \`/track\` and see your current players with \`/players\`!');
-    }
+    logger.info('New guild acquired!', { newSubscription: true });
+
+    await interaction.update({ content: 'You\'re good to go! Use `/track` to add players to your watch list!', components: [] });
+    return channel.send('This channel is subscribed to OSRS Buddy updates! You can add players to track with \`/track\` and see your current players with \`/players\`!');
   }
-}
+
+  // only if they weren't subscribed, announce it
+  if (record.subscribed === false) {
+    logger.info('Guild resubscribed');
+    return channel.send('This channel is resubscribed to OSRS Buddy updates! You can add players to track with \`/track\` and see your current players with \`/players\`!');
+  }
+
+  logger.info('Update guild config', { newSubscription: false });
+
+  // existing guild - update
+  return interaction.update({ content: 'Got it! I\'ve updated your information!', components: [] });
+};

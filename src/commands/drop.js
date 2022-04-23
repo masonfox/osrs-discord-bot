@@ -1,26 +1,26 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const { MessageActionRow, MessageSelectMenu } = require("discord.js");
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageActionRow, MessageSelectMenu } = require('discord.js');
 const {
   fetchGuildById,
   fetchGuildPlayers,
-} = require("../utilities");
-const logger = require("../../logger");
-const client = require("../client");
-const mongo = require("../db");
+} = require('../utilities');
+const client = require('../client');
+const mongo = require('../db');
 
 exports.data = new SlashCommandBuilder()
-  .setName("drop")
+  .setName('drop')
   .setDescription("Drop/remove players from your guild's tracking list");
 
 exports.execute = async (interaction) => {
   // TODO: convert this to bring all player objs and include relative updatedAt
   const trackedPlayers = await fetchGuildPlayers(interaction.guildId);
 
-  if (trackedPlayers.length == 0)
+  if (trackedPlayers.length === 0) {
     return interaction.reply({
       content: "You're not tracking any players yet.",
       ephemeral: true,
     });
+  }
 
   const playerOptions = trackedPlayers.map((player) => ({
     label: player,
@@ -29,31 +29,66 @@ exports.execute = async (interaction) => {
 
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()
-      .setCustomId("droppedPlayers")
-      .setPlaceholder("Select player(s)")
+      .setCustomId('droppedPlayers')
+      .setPlaceholder('Select player(s)')
       .setMinValues(1)
       .setMaxValues(playerOptions.length)
-      .addOptions(playerOptions)
+      .addOptions(playerOptions),
   );
 
-  interaction.reply({
+  return interaction.reply({
     content: "Select players to drop from your guild's tracking list:",
     components: [row],
     ephemeral: true,
   });
 };
 
-exports.handler = async (interaction) => {
+/**
+ * Prune the player and history collections
+ * @param {string} rsn
+ */
+async function dbCleanup(rsn, logger) {
+  // find if the player is located anywhere else
+  const guilds = await mongo.db
+    .collection('guilds')
+    .find({ players: rsn })
+    .toArray();
+
+  // if they're not tracked by other guilds, delete them
+  if (guilds.length === 0) {
+    logger.info(`Deleting ${rsn} from player AND history collections; no guilds tracking`, {
+      player: rsn,
+    });
+
+    // delete player record
+    await mongo.db.collection('players').deleteOne({ _id: rsn });
+
+    // delete history records
+    await mongo.db.collection('history').deleteMany({ playerId: rsn });
+  } else {
+    const guildIds = guilds.map((guild) => guild._id);
+    logger.info(`Deleting ${rsn} from guild, but not from player collection`, {
+      player: rsn,
+      guilds: guildIds,
+    });
+  }
+}
+
+exports.handler = async (interaction, handlerId, logger) => {
   await interaction.deferUpdate();
 
   // confirm guild subscription exists
   const guild = await fetchGuildById(interaction.guildId);
 
   // confirm the guilds exists
-  if (!guild)
+  if (!guild) {
+    logger.info('Command escaped - server not subscribed');
     return interaction.editReply(
-      "This server isn't subscribed, so you don't have any tracked players!"
+      "This server isn't subscribed, so you don't have any tracked players!",
     );
+  }
+
+  logger.info('Command args', { args: { playersToDrop: interaction.values } });
 
   const confirmedRemoves = [];
 
@@ -68,24 +103,24 @@ exports.handler = async (interaction) => {
      * Section: remove the player and send msg
      */
     // remove player from guild tracking
-    await mongo.db.collection("guilds").updateOne(
+    await mongo.db.collection('guilds').updateOne(
       { _id: interaction.guildId },
       {
         $pull: { players: rsn },
-      }
+      },
     );
 
     // push into successful array
     confirmedRemoves.push(rsn);
 
     // db cleanup of players and history collections
-    await dbCleanup(rsn);
+    await dbCleanup(rsn, logger);
   }
 
   // finalize the response to the initiator and tracking channel
   if (confirmedRemoves.length > 0) {
-    let rsnList = "";
-    let rsnListBulleted = "";
+    let rsnList = '';
+    let rsnListBulleted = '';
 
     for (let index = 0; index < confirmedRemoves.length; index++) {
       const rsn = confirmedRemoves[index];
@@ -93,10 +128,14 @@ exports.handler = async (interaction) => {
       rsnListBulleted += `- ${rsn}\n`;
     }
 
-    let message =
-      confirmedRemoves.length > 1
-        ? `The following players have been successfully removed: **${rsnList}**!`
-        : `Player **${rsnList}** has been successfully removed!`;
+    const message = confirmedRemoves.length > 1
+      ? `The following players have been successfully removed: **${rsnList}**!`
+      : `Player **${rsnList}** has been successfully removed!`;
+
+    logger.info('Player(s) dropped from guild', {
+      players: confirmedRemoves,
+      dropCount: confirmedRemoves.length,
+    });
 
     await interaction.editReply({ content: message, components: [] });
 
@@ -104,45 +143,20 @@ exports.handler = async (interaction) => {
     const channel = client.channels.cache.get(guild.channelId);
 
     if (confirmedRemoves.length > 1) {
-      channel.send(
-        `💀 ${interaction.user.username} removed the following players from your guild's tracked players list. Queue their viking burials! ⚰️🔥\n\n${rsnListBulleted}`
-      );
-    } else {
-      channel.send(
-        `💀 ${interaction.user.username} removed RSN **${rsnList}** from your guild's tracked players list. Queue their viking burial! ⚰️🔥`
+      return channel.send(
+        `💀 ${interaction.user.username} removed the following players from your guild's tracked players list. Queue their viking burials! ⚰️🔥\n\n${rsnListBulleted}`,
       );
     }
-  } else {
-    await interaction.editReply({
-      content: "Hm, something went wrong :/",
-      components: [],
-    });
-  }
-};
 
-/**
- *
- * @param {string} rsn
- */
-async function dbCleanup(rsn) {
-  // find if the player is located anywhere else
-  const guilds = await mongo.db
-    .collection("guilds")
-    .find({ players: rsn })
-    .toArray();
-
-  // if they're not tracked by other guilds, delete them
-  if (guilds.length == 0) {
-    logger.info(
-      `Deleting ${rsn} from player and history collections, no guilds tracking`
+    return channel.send(
+      `💀 ${interaction.user.username} removed RSN **${rsnList}** from your guild's tracked players list. Queue their viking burial! ⚰️🔥`,
     );
-
-    // delete player record
-    await mongo.db.collection("players").deleteOne({ _id: rsn });
-
-    // delete history records
-    await mongo.db.collection("history").deleteMany({ playerId: rsn });
-  } else {
-    logger.info(`${rsn} removed from guild, but not from collections`, guilds);
   }
-}
+
+  logger.info('No players available to remove');
+
+  return interaction.editReply({
+    content: 'Hm, something went wrong :/',
+    components: [],
+  });
+};

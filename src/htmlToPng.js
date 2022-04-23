@@ -3,7 +3,7 @@ const nodeHtmlToImage = require('node-html-to-image');
 const { getResource, getTime } = require('./utilities');
 
 module.exports = async (channel, description = '', fields = [], players = null) => {
-  if (!players) { throw new Error('User sections are required for image creation'); }
+  if (!players) { throw Error('User sections are required for image creation'); }
 
   let block = '';
   const content = {

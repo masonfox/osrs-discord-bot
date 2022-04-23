@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 const logger = require('../logger');
 
-if (!process.env.MONGODB_CONNECTION_STRING) throw new Error('MongoDB connection string not provided in .env!');
+if (!process.env.MONGODB_CONNECTION_STRING) throw Error('MongoDB connection string not provided in .env!');
 
 // Config
 const dbName = 'osrsbuddy';
