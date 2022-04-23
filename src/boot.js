@@ -26,7 +26,7 @@ module.exports = async function boot() {
    */
   cron.schedule(cronTimes.bihourly, () => {
     // fire app logic
-    // app.main();
+    app.main();
   });
 
   /**
@@ -36,7 +36,7 @@ module.exports = async function boot() {
   cron.schedule(cronTimes.weekly, () => {
     logger.info('Executing weekly recap!');
     // fire weekly recap logic
-    // recap.main('week');
+    recap.main('week');
   });
 
   /**
@@ -46,6 +46,6 @@ module.exports = async function boot() {
   cron.schedule(cronTimes.monthly, () => {
     logger.info('Executing monthly recap!');
     // fire monthly recap logic
-    // recap.main('month');
+    recap.main('month');
   });
 };
