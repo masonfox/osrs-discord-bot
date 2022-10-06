@@ -27,7 +27,14 @@ exports.titleCase = function titleCase(str) {
 
 exports.fetchOSRSPlayer = async function fetchOSRSPlayer(name) {
   try {
+    // get raw response from API for user
     const response = await Hiscores.fetch(name);
+
+    // prepare and patch rifts into bossess
+    const { riftsClosed } = response.minigames;
+    response.bossRecords.riftsClosed = riftsClosed;
+
+    // return finalized objects
     return {
       skills: response.skills,
       clues: response.clues,
@@ -206,6 +213,7 @@ exports.bossMap = function bossMap(bossName) {
     wintertodt: 'Wintertodt',
     zalcano: 'Zalcano',
     zulrah: 'Zulrah',
+    riftsClosed: 'Guardians of the Rift',
   };
 
   return map[bossName];
