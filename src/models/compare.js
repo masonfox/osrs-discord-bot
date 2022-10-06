@@ -78,12 +78,17 @@ module.exports = class Compare {
 
     for (const [boss, currentBossObj] of Object.entries(this.current.bosses)) {
       const previousBossObj = this.previous.bosses[boss];
-      if (currentBossObj.score > previousBossObj.score) {
-        results.push({
-          boss,
-          ...currentBossObj,
-          variance: currentBossObj.score - ((previousBossObj.score == -1) ? 0 : previousBossObj.score), // handle API setting 0 to -1
-        });
+      try {
+        if (currentBossObj.score > previousBossObj.score) {
+          results.push({
+            boss,
+            ...currentBossObj,
+            variance: currentBossObj.score - ((previousBossObj.score == -1) ? 0 : previousBossObj.score), // handle API setting 0 to -1
+          });
+        }
+      } catch {
+        // catch issues where the data model differs between current and previous state
+        console.log('Discrepancy of models');
       }
     }
 
