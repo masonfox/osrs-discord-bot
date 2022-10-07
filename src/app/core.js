@@ -45,10 +45,9 @@ const runs = {
  * Main app function
  */
 const main = async function main() {
+  const startTime = performance.now();
   // instantiate child logger for occurence with instance id
   const childLogger = logger.child({ instance: uuid(), layer: 'cron' });
-
-  childLogger.info('main started');
 
   // fetch users to track
   const users = await fetchAllPlayers();
@@ -73,6 +72,8 @@ const main = async function main() {
     const withMessages = constructMessage(progressedPlayers);
     childLogger.info('Messages created');
     await sendMessages(withMessages);
+    const endTime = performance.now();
+    childLogger.info(`⏱️ App main took ${endTime - startTime} milliseconds`);
   } else {
     childLogger.info('No tracked players eligble for updates');
   }
