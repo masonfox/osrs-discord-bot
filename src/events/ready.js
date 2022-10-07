@@ -12,7 +12,11 @@ module.exports = {
     // launch db connection
     await mongo.init();
 
-    // launch the bot's functionality
-    boot();
+    // launch the bot's cron/tracking functionality - commands will function without this
+    if (process.env.BOOT_APP_CRONS === 'true') {
+      boot();
+    } else {
+      logger.info('❓The app crons/trackers are not running! Please check your .env file if this is unintended.');
+    }
   },
 };

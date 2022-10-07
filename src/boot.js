@@ -48,4 +48,6 @@ module.exports = async function boot() {
     // fire monthly recap logic
     recap.main('month');
   });
+
+  logger.info('✅ The crons/trackers have been booted');
 };
