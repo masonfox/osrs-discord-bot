@@ -14,7 +14,7 @@ class Mongo {
 
   async init() {
     await this.client.connect();
-    logger.info('MongoDB Connected');
+    logger.info('✅ MongoDB Connected');
 
     this.db = this.client.db(dbName);
   }
