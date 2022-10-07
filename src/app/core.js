@@ -115,7 +115,7 @@ const getDBState = async function getDBState(currentStatePlayers) {
         if (process.env.PERSIST_PLAYER_UPDATES === 'true') {
           await transitionState(comparison);
         } else {
-          console.info('Not persisting updates');
+          logger.info('❓Not persisting player updates. If unintended, please check the .env configuration.');
         }
       }
     } else {
