@@ -39,10 +39,5 @@ module.exports = {
     if (args[0] === 'rebase') {
       rebase(message);
     }
-
-    // Get the command from the commands collection and then if the command is found run the command file
-    const commandfile = client.commands.get(args[0]);
-    logger.info(`Command file attempted through message: ${commandfile}`);
-    // if (commandfile) commandfile.execute(message, args);
   },
 };

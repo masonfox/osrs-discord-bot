@@ -2,18 +2,22 @@ const { fetchAllPlayers } = require('../utilities');
 const app = require('../app/core');
 const mongo = require('../db');
 const admins = require('./list');
+const logger = require('../../logger');
 
 module.exports = async function rebase(msg) {
-  //
+  // only allow admins to execute this command
   if (admins.includes(msg.author.id)) {
     const DBplayers = await fetchAllPlayers();
     // get osrs data
     const data = await app.getRSData(DBplayers);
-    // update
+    // async transaction store
+    const results = [];
+
+    // prepare db transactions
     for (let i = 0; i < data.length; i++) {
       const player = data[i];
       // force update DB - TODO: this could probably be insertMany
-      await mongo.db.collection('players').updateOne(
+      results.push(mongo.db.collection('players').updateOne(
         { _id: player.name.toLowerCase() },
         {
           $set: {
@@ -23,8 +27,13 @@ module.exports = async function rebase(msg) {
             updatedAt: new Date(),
           },
         },
-      );
+      ));
     }
+
+    // execute async db transactions
+    await Promise.all(results);
+
+    logger.info(`Hiscore rebase completed. Triggered by ${msg.author.username} (${msg.author.id})`);
     msg.channel.send('All player data rebased against the hiscore table');
   } else {
     // denied
