@@ -165,7 +165,7 @@ exports.bossMap = function bossMap(bossName) {
   const map = {
     abyssalSire: 'Abyssal Sire',
     alchemicalHydra: 'Alchemical Hydra',
-    barrowsChest: 'Barrows Chests',
+    barrowsChests: 'Barrows Chests',
     bryophyta: 'Bryophyta',
     callisto: 'Callisto',
     cerberus: 'Cerberus',
