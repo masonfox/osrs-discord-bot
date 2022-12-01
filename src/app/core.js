@@ -121,6 +121,7 @@ const getRSData = async function getRSData(players) {
 };
 
 const getDBState = async function getDBState(currentStatePlayers) {
+  // TODO: pull these asyncs out of the loops
   const filtered = [];
 
   for (const player of currentStatePlayers) {
