@@ -53,10 +53,13 @@ const main = async function main() {
   const users = await fetchAllPlayers();
 
   // retrieve and format data from OSRS API
-  const currentPlayerState = await getRSData(users);
+  const { players, errors } = await getRSData(users);
 
-  // // returns consolidated player compare state for those who are eligble
-  const progressedPlayers = await getDBState(currentPlayerState);
+  // if players errors from OSRS API, process and announce the name changes
+  if (errors.length > 0) announceNameChanges(errors);
+
+  // returns consolidated player compare state for those who are eligble
+  const progressedPlayers = await getDBState(players);
 
   if (progressedPlayers.length > 0) {
     // log player progressions
@@ -88,15 +91,33 @@ const main = async function main() {
  * @returns array of user objects with skill data
  */
 const getRSData = async function getRSData(players) {
-  return Promise.all(
-    players.map(async (playerObj) => {
-      const data = await fetchOSRSPlayer(playerObj.name);
-      if (!_isEmpty(data)) {
-        const { skills, bosses, clues } = data;
-        return new Player(playerObj.name, skills, bosses, clues);
-      }
-    }),
-  );
+  const process = [];
+  const enrichedPlayers = [];
+  const errors = [];
+
+  async function constructPlayer(playerObj) {
+    const data = await fetchOSRSPlayer(playerObj.name);
+    if (!_isEmpty(data)) {
+      const { skills, bosses, clues } = data;
+      enrichedPlayers.push(new Player(playerObj.name, skills, bosses, clues));
+    } else {
+      logger.error(`Error for ${playerObj.name} - most likely name change`);
+      errors.push(playerObj);
+    }
+  }
+
+  // prepare process array for async processing
+  for (const player of players) {
+    process.push(constructPlayer(player));
+  }
+
+  // process all players
+  await Promise.all(process);
+
+  return {
+    players: enrichedPlayers,
+    errors,
+  };
 };
 
 const getDBState = async function getDBState(currentStatePlayers) {
@@ -263,6 +284,16 @@ const constructMessage = function constructMessage(data) {
   return data;
 };
 
+/**
+ * Announces the changes of players whose names likely changed
+ * This should be used when players can no longer be found in the RS dataset, but have previous DB state
+ * @param {array} players
+ */
+const announceNameChanges = function announceNameChanges(players) {
+  // TODO: send Discord messages to all affected servers that track these users
+  // console.log(players);
+};
+
 const sendMessages = async function sendMessages(players) {
   const guilds = await fetchGuilds(true);
 
@@ -285,5 +316,6 @@ module.exports = {
   getRSData,
   trackNewPlayer,
   transitionState,
+  announceNameChanges,
   constructMessage,
 };
