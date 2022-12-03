@@ -10,6 +10,7 @@ const {
   fetchOSRSPlayer,
   getTime,
   addTimeFromNow,
+  fetchGuildsWithPlayer,
   _isEmpty,
 } = require('../utilities');
 const Player = require('../models/player');
@@ -290,9 +291,69 @@ const constructMessage = function constructMessage(data) {
  * This should be used when players can no longer be found in the RS dataset, but have previous DB state
  * @param {array} players
  */
-const announceNameChanges = function announceNameChanges(players) {
-  // TODO: send Discord messages to all affected servers that track these users
-  // console.log(players);
+const announceNameChanges = async function announceNameChanges(players) {
+  const processPlayers = [];
+  const results = {};
+
+  // prepare the guilds array through the player information
+  async function prepareResults(player) {
+    const guilds = await fetchGuildsWithPlayer(player._id);
+    if (guilds.length > 0) {
+      guilds.forEach((guild) => {
+        // check if guild id already exists
+        if (!(guild._id in results)) {
+          // push a new guild record
+          results[guild._id] = {
+            guild,
+            players: [player],
+          };
+        } else {
+          // this guild already exists in the list - simply add the player
+          results[guild._id].players.push(player);
+        }
+      });
+    }
+  }
+
+  // populate array for async processing - see func above
+  players.forEach((player) => {
+    processPlayers.push(prepareResults(player));
+  });
+
+  // process all players async
+  await Promise.all(processPlayers);
+
+  // prepare channels
+  const processChannels = [];
+  const channelResults = [];
+
+  async function getChannels(result) {
+    const channel = await client.channels.fetch(result.guild.channelId);
+    channelResults.push({
+      ...result, // note, big change in data structure
+      channel,
+    });
+  }
+
+  // populate array for async processing - see func above
+  Object.keys(results).forEach((key) => {
+    processChannels.push(getChannels(results[key]));
+  });
+
+  // process all channels async
+  await Promise.all(processChannels);
+
+  // construct and send messages
+  channelResults.forEach((result) => {
+    const plural = result.players.length > 1;
+    const baseMsg = `⚠️ Hmm... I believe the following player${plural ? "s'" : "'s"} name${plural ? 's' : ''} ${plural ? 'have' : 'has'} changed:\n\n`;
+    const playerNames = result.players.map((player) => `- **${player.name}**\n`).join('');
+    const instruction = '\nTo resolve this issue, please use the `/drop` command, select the name(s) above, and then track the user by their new name with the `/track` command.';
+    const fullMessage = baseMsg + playerNames + instruction;
+
+    // full send
+    result.channel.send(fullMessage);
+  });
 };
 
 const sendMessages = async function sendMessages(players) {

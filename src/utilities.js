@@ -79,6 +79,15 @@ exports.fetchGuildPlayers = async function fetchGuildPlayers(guildId) {
 };
 
 /**
+ * Retrieves all of the guilds that a player is tracked on
+ * Note, this automatically implies that the server is subscribed
+ * @param {string} playerId - the lowered username of the player
+ */
+exports.fetchGuildsWithPlayer = async function fetchGuildsWithPlayer(playerId) {
+  return mongo.db.collection('guilds').find({ subscribed: true, players: playerId }).toArray();
+};
+
+/**
  * Retrieve all of the guilds stored in the DB
  * @returns {array} of guilds docs
  */
