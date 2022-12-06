@@ -8,7 +8,7 @@ module.exports = class Compare {
     if (!(currentPlayerState instanceof Player)) throw Error('currentPlayerState param must be an instance of Player');
 
     // set name
-    this.name = currentPlayerState.name;
+    { this.name = currentPlayerState.name; }
 
     // remove name duplicates
     delete currentPlayerState.name;
@@ -26,10 +26,10 @@ module.exports = class Compare {
     this.updatedClues();
     this.updatedBosses();
 
-    // console.log('has progressed:', this.hasProgressed)
-    // console.log('skills:', this.hasUpdatedSkills)
-    // console.log('clues:', this.hasUpdatedClues)
-    // console.log('bosses:', this.hasUpdatedBosses)
+    // console.log('has progressed:', this.hasProgressed);
+    // console.log('skills:', this.hasUpdatedSkills);
+    // console.log('clues:', this.hasUpdatedClues);
+    // console.log('bosses:', this.hasUpdatedBosses);
 
     // console.log(this.results)
   }
