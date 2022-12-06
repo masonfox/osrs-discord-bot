@@ -102,7 +102,6 @@ const getRSData = async function getRSData(players) {
       const { skills, bosses, clues } = data;
       enrichedPlayers.push(new Player(playerObj.name, skills, bosses, clues));
     } else {
-      logger.error(`Error for ${playerObj.name} - most likely name change`);
       errors.push(playerObj);
     }
   }

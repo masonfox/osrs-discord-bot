@@ -6,6 +6,7 @@ const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone'); // dependent on utc plugin
 const { Hiscores } = require('oldschooljs');
 const mongo = require('./db');
+const logger = require('../logger');
 
 // Dayjs library extensions
 dayjs.extend(utc);
@@ -41,6 +42,10 @@ exports.fetchOSRSPlayer = async function fetchOSRSPlayer(name) {
       bosses: response.bossRecords,
     };
   } catch (error) {
+    logger.error(`Error fetching ${name} from OSRS Hiscores API`, {
+      name,
+      error,
+    });
     return {};
   }
 };
