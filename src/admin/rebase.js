@@ -9,13 +9,13 @@ module.exports = async function rebase(msg) {
   if (admins.includes(msg.author.id)) {
     const DBplayers = await fetchAllPlayers();
     // get osrs data
-    const data = await app.getRSData(DBplayers);
+    const { players } = await app.getRSData(DBplayers);
     // async transaction store
     const results = [];
 
     // prepare db transactions
-    for (let i = 0; i < data.length; i++) {
-      const player = data[i];
+    for (let i = 0; i < players.length; i++) {
+      const player = players[i];
       // force update DB - TODO: this could probably be insertMany
       results.push(mongo.db.collection('players').updateOne(
         { _id: player.name.toLowerCase() },

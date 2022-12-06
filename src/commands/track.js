@@ -12,8 +12,8 @@ const mongo = require('../db');
  * @param {string} name
  */
 async function insertNewPlayer(name) {
-  const data = await app.getRSData([{ name }]);
-  await app.trackNewPlayer(data[0]);
+  const { players } = await app.getRSData([{ name }]);
+  await app.trackNewPlayer(players[0]);
 }
 
 exports.data = new SlashCommandBuilder()
