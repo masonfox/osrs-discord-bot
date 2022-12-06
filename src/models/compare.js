@@ -1,8 +1,12 @@
+const Player = require('./player');
+
 /**
  * Comparison logic for a player
  */
 module.exports = class Compare {
   constructor(currentPlayerState, DBPlayerState) {
+    if (!(currentPlayerState instanceof Player)) throw Error('currentPlayerState param must be an instance of Player');
+
     // set name
     this.name = currentPlayerState.name;
 
