@@ -57,7 +57,7 @@ const main = async function main() {
   const { players, errors } = await getRSData(users);
 
   // if players errors from OSRS API, process and announce the name changes
-  if (errors.length > 0) announceNameChanges(errors);
+  // if (errors.length > 0) announceNameChanges(errors);
 
   // returns consolidated player compare state for those who are eligble
   const progressedPlayers = await getDBState(players);
