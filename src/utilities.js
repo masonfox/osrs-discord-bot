@@ -207,6 +207,7 @@ exports.bossMap = function bossMap(bossName) {
     nex: 'Nex',
     nightmare: 'Nightmare',
     phosanisNightmare: "Phosani's Nightmare",
+    phantomMuspah: "Phantom Muspah",
     obor: 'Obor',
     sarachnis: 'Sarachnis',
     scorpia: 'Scorpia',
